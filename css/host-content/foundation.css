@@ -4,8 +4,8 @@
  * thetree skin components are authored against the border-box reset supplied
  * by their normal skin frameworks. Vector does not provide that reset. Apply
  * the missing invariant only to host-owned elements, leaving any profile's
- * origin-owned content surface under its own box-model contract. :where() keeps the
- * bridge weaker than component-scoped declarations.
+ * origin-owned content surface under its own box-model contract. :where()
+ * keeps the bridge weaker than component-scoped declarations.
  */
 :where(#mw-content-text[data-tt-host-content="1"]:not([data-tt-origin-content="1"])),
 :where(#mw-content-text[data-tt-host-content="1"]) :where(
