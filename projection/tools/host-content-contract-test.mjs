@@ -62,6 +62,9 @@ const projectionLayer = read('projection/lib/contentProjectionLayer.js');
 assert.match(projectionLayer, /event\.preventDefault\(\)/);
 assert.match(projectionLayer, /event\.stopPropagation\(\)/);
 assert.match(projectionLayer, /toggleTheTreeContentProjection\(adapterContext, storeState\)/);
+const projectionRuntimeController = read('projection/lib/runtime/createProjectionRuntimeController.js');
+assert.match(projectionRuntimeController, /createVectorRuntimeController/);
+assert.doesNotMatch(projectionRuntimeController, /thetree-mediawiki|thetree-vector/);
 
 assert.deepEqual(imports(read('css/host-content.css')), [
   './host-content/foundation.css',
