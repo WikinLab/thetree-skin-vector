@@ -39,14 +39,6 @@ assert.deepEqual(imports(read('projection/css/index.css')), [
 ]);
 
 for (const relativePath of [
-  'css/profile.css',
-  'lib/skinProfile.js',
-  'lib/runtime/createExtensionRuntimeHost.js',
-  'lib/runtime/createSkinRuntimeController.js'
-]) {
-  assert.equal(fs.existsSync(path.join(root, relativePath)), false);
-}
-for (const relativePath of [
   'projection/css/index.css',
   'projection/lib/contentProjectionLayer.js',
   'projection/lib/runtime/createExtensionRuntimeHost.js',

@@ -1,6 +1,6 @@
 /*
  * Host-owned links retain thetree's palette and external-link decorator.
- * A profile can mark an origin-owned surface to retain its source contract.
+ * Origin-owned surfaces retain their own link contract.
  */
 :where(#mw-content-text[data-tt-host-content="1"]) :where(a:not(
   [data-tt-origin-content="1"],

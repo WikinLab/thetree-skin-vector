@@ -6,8 +6,6 @@
 /images/
 /css/vendor/
 /lib/generated/
-/lib/ports/mediawiki-cite/
-/lib/ports/mediawiki-popups/src/wait.js
 /projection/lib/generated/
 /projection/lib/ports/mediawiki-cite/
 /projection/lib/ports/mediawiki-popups/src/wait.js
