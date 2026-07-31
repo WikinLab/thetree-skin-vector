@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "thetree-skin-vector",
-  "version": "0.33.4",
+  "version": "0.33.5",
   "description": "MediaWiki Vector Legacy skin for the tree with locked, deterministic ResourceLoader generation",
   "type": "module",
   "packageManager": "npm@10.8.2",
