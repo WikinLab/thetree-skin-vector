@@ -6,10 +6,11 @@ import {
   CONTENT_PROJECTION_SERVER_DATA_KEY,
   insertContentProjectionPersonalTool,
   resolveContentProjectionPreference,
-  serializeContentProjectionCookie
+  serializeContentProjectionCookie,
+  toggleTheTreeContentProjection
 } from '../lib/adapters/thetree-content-projection.js';
 import { RUNTIME_CAPABILITIES } from '../lib/runtime/capabilities.js';
-import { createExtensionRuntimeHost } from '../../lib/runtime/createExtensionRuntimeHost.js';
+import { createExtensionRuntimeHost } from '../lib/runtime/createExtensionRuntimeHost.js';
 import { normalizeLegacyStructuredCategory } from '../lib/legacyCategoryContract.js';
 import { LINK_SEMANTICS } from '../lib/linkSemantics.js';
 import { getClasses, parseHtmlFragment, serializeHtml } from '../lib/parserOutput/domAst.js';
@@ -42,6 +43,26 @@ assert.equal(insertContentProjectionPersonalTool([], contextWith(true))[0].label
 assert.equal(insertContentProjectionPersonalTool([], contextWith(false))[0].label, '스킨 본문 켜기');
 assert.match(serializeContentProjectionCookie(false), /thetree_vector_content_projection=off/);
 assert.match(serializeContentProjectionCookie(true, { secure: true }), /; Secure$/);
+
+let reloads = 0;
+let storedPreference = null;
+globalThis.document = { cookie: '' };
+globalThis.window = {
+  location: {
+    protocol: 'https:',
+    reload() { reloads += 1; }
+  }
+};
+assert.equal(toggleTheTreeContentProjection(contextWith(false), {
+  localConfigSetValue(key, value) {
+    storedPreference = { key, value };
+  }
+}), true);
+assert.match(globalThis.document.cookie, /thetree_vector_content_projection=on/);
+assert.deepEqual(storedPreference, { key: 'vector.content_projection', value: true });
+assert.equal(reloads, 1);
+delete globalThis.document;
+delete globalThis.window;
 
 let extensionCreates = 0;
 let extensionInits = 0;

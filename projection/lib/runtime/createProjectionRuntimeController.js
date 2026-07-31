@@ -1,10 +1,10 @@
-import { installTheTreeMediaWikiRuntime } from '../adapters/thetree-mediawiki/runtime.js';
-import { createTheTreeVectorRuntime } from '../adapters/thetree-vector/skin-legacy.js';
+import { installTheTreeMediaWikiRuntime } from '../../../lib/adapters/thetree-mediawiki/runtime.js';
+import { createTheTreeVectorRuntime } from '../../../lib/adapters/thetree-vector/skin-legacy.js';
 import { createExtensionRuntimeHost } from './createExtensionRuntimeHost.js';
 
 function noop() {}
 
-export function createSkinRuntimeController({
+export function createProjectionRuntimeController({
   createContentRuntime = null,
   getContentRuntimeOptions = () => ({}),
   getMediaWikiRuntimeData = () => ({}),

@@ -30,13 +30,38 @@ assert.deepEqual(imports(read('css/screen.css')), [
   './vendor/resource-loader/page-styles.css',
   './vector-adapter.css',
   './host-content.css',
-  './profile.css'
+  '../projection/css/index.css'
 ]);
 
-assert.deepEqual(imports(read('css/profile.css')), [
-  '../projection/css/content-projection.css',
-  '../projection/css/popups-adapter.css'
+assert.deepEqual(imports(read('projection/css/index.css')), [
+  './content-projection.css',
+  './popups-adapter.css'
 ]);
+
+for (const relativePath of [
+  'css/profile.css',
+  'lib/skinProfile.js',
+  'lib/runtime/createExtensionRuntimeHost.js',
+  'lib/runtime/createSkinRuntimeController.js'
+]) {
+  assert.equal(fs.existsSync(path.join(root, relativePath)), false);
+}
+for (const relativePath of [
+  'projection/css/index.css',
+  'projection/lib/contentProjectionLayer.js',
+  'projection/lib/runtime/createExtensionRuntimeHost.js',
+  'projection/lib/runtime/createProjectionRuntimeController.js'
+]) {
+  assert.equal(fs.existsSync(path.join(root, relativePath)), true);
+}
+
+const projectionLayout = read('layout.vue');
+assert.match(projectionLayout, /@click\.capture="onContentProjectionClick"/);
+assert.match(projectionLayout, /contentProjectionLayer\.handleClick\(event/);
+const projectionLayer = read('projection/lib/contentProjectionLayer.js');
+assert.match(projectionLayer, /event\.preventDefault\(\)/);
+assert.match(projectionLayer, /event\.stopPropagation\(\)/);
+assert.match(projectionLayer, /toggleTheTreeContentProjection\(adapterContext, storeState\)/);
 
 assert.deepEqual(imports(read('css/host-content.css')), [
   './host-content/foundation.css',

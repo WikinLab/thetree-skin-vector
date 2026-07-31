@@ -36,8 +36,8 @@
         id="mw-content-text"
         ref="contentText"
         key="mw-content-text"
-        :class="contentRootBinding.classList"
-        v-bind="contentRootBinding.attributes"
+        :class="projectionRootBinding.classList"
+        v-bind="projectionRootBinding.attributes"
         data-tt-host-content="1"
         :data-tt-host-content-name="adapterContext.pageContract.hostContentName || null"
       >
@@ -46,9 +46,9 @@
     </template>
 
     <template #html-categories>
-      <RawHtmlFragment v-if="!contentProfile" :html="skinData['html-categories'] || ''" />
+      <RawHtmlFragment v-if="!contentProjection" :html="skinData['html-categories'] || ''" />
       <div
-        v-else-if="profileCategoryData.hasCategories"
+        v-else-if="projectionCategoryData.hasCategories"
         id="catlinks"
         class="catlinks"
         data-mw="interface"
@@ -56,10 +56,10 @@
         data-tt-vector-catlinks-surface="1"
       >
         <div id="mw-normal-catlinks" class="mw-normal-catlinks">
-          <span class="mw-catlinks-label">{{ profileCategoryData.label }}</span>:
+          <span class="mw-catlinks-label">{{ projectionCategoryData.label }}</span>:
           <ul>
             <li
-              v-for="category in profileCategoryData.items"
+              v-for="category in projectionCategoryData.items"
               :key="category.id"
               :class="category.itemClasses"
             >
@@ -87,14 +87,14 @@ import { makeSkinLegacyData } from '../lib/legacySkinData';
 import { buildLegacyTitleHeadingData } from '../lib/legacyTitleData';
 import { getSearchModeFromSubmitEvent, makeSearchSubmitTargetForContext } from '../lib/legacySearchSubmit';
 import { makeSkinLegacyAdapterState } from '../lib/legacySkinAdapter';
-import { createSkinRuntimeController } from '../lib/runtime/createSkinRuntimeController';
 import { isDarkModeToggleTarget, toggleTheTreeDarkMode } from '../lib/adapters/mediawiki-darkmode';
+import { createProjectionRuntimeController } from '../projection/lib/runtime/createProjectionRuntimeController.js';
 
 export default {
   name: 'SkinLegacy',
   mixins: [Common],
   props: {
-    contentProfile: {
+    contentProjection: {
       type: Object,
       default: null
     }
@@ -107,7 +107,7 @@ export default {
   data() {
     return {
       isShowACLMessage: true,
-      legacySkinRuntimeController: null
+      projectionRuntimeController: null
     };
   },
   computed: {
@@ -134,17 +134,17 @@ export default {
     pageTitle() {
       return this.titleData['page-title'] || '';
     },
-    contentSurface() {
-      return this.contentProfile ? this.contentProfile.resolveSurface(this.adapterContext) : {};
+    projectionSurface() {
+      return this.contentProjection ? this.contentProjection.resolveSurface(this.adapterContext) : {};
     },
-    contentRootBinding() {
-      return this.contentProfile
-        ? this.contentProfile.contentRootBinding(this.contentSurface, this.adapterContext)
+    projectionRootBinding() {
+      return this.contentProjection
+        ? this.contentProjection.contentRootBinding(this.projectionSurface, this.adapterContext)
         : { classList: {}, attributes: {} };
     },
-    profileCategoryData() {
-      return this.contentProfile
-        ? this.contentProfile.makeCategoryData(this.adapterContext)
+    projectionCategoryData() {
+      return this.contentProjection
+        ? this.contentProjection.makeCategoryData(this.adapterContext)
         : { hasCategories: false, label: '', items: [] };
     },
     skinAdapter() {
@@ -159,9 +159,9 @@ export default {
     baseViewItems() {
       return makeViewItems(this.adapterContext);
     },
-    profileRuntimeData() {
-      return this.contentProfile
-        ? this.contentProfile.makeRuntimeData(this.makeProfileRuntimeContext())
+    projectionRuntimeData() {
+      return this.contentProjection
+        ? this.contentProjection.makeRuntimeData(this.makeProjectionRuntimeContext())
         : {};
     },
     hasUnreadUserDiscussion() {
@@ -183,26 +183,26 @@ export default {
   watch: {
     $route() {
       this.isShowACLMessage = true;
-      this.resetLegacySkinRuntime();
+      this.resetProjectionRuntime();
     },
     document() {
-      this.resetLegacySkinRuntime();
+      this.resetProjectionRuntime();
     },
     baseViewItems() {
-      this.resetLegacySkinRuntime();
+      this.resetProjectionRuntime();
     },
-    contentProfile() {
-      this.resetLegacySkinRuntime();
+    contentProjection() {
+      this.resetProjectionRuntime();
     }
   },
   mounted() {
-    this.initLegacySkinRuntime();
+    this.initProjectionRuntime();
   },
   beforeDestroy() {
-    this.teardownLegacySkinRuntime();
+    this.teardownProjectionRuntime();
   },
   beforeUnmount() {
-    this.teardownLegacySkinRuntime();
+    this.teardownProjectionRuntime();
   },
   methods: {
     onSkinClick(event) {
@@ -213,10 +213,6 @@ export default {
         toggleTheTreeDarkMode(this.$store.state);
         return;
       }
-      if (this.contentProfile && this.contentProfile.handleClick(event, {
-        adapterContext: this.adapterContext,
-        storeState: this.$store.state
-      })) return;
       this.onDynamicContentClick(event);
     },
     submitSearch(event) {
@@ -234,34 +230,34 @@ export default {
       const target = makeSearchSubmitTargetForContext(q, mode, this.adapterContext);
       this.$router.push(target);
     },
-    ensureLegacySkinRuntimeController() {
-      if (this.legacySkinRuntimeController) return this.legacySkinRuntimeController;
-      const profile = this.contentProfile;
-      const getRuntimeContext = () => this.makeProfileRuntimeContext();
-      this.legacySkinRuntimeController = createSkinRuntimeController({
-        createContentRuntime: profile && typeof profile.createMountedRuntime === 'function'
-          ? (optionsSource) => profile.createMountedRuntime(optionsSource)
+    ensureProjectionRuntimeController() {
+      if (this.projectionRuntimeController) return this.projectionRuntimeController;
+      const projection = this.contentProjection;
+      const getRuntimeContext = () => this.makeProjectionRuntimeContext();
+      this.projectionRuntimeController = createProjectionRuntimeController({
+        createContentRuntime: projection && typeof projection.createMountedRuntime === 'function'
+          ? (optionsSource) => projection.createMountedRuntime(optionsSource)
           : null,
         getContentRuntimeOptions: getRuntimeContext,
-        getMediaWikiRuntimeData: () => this.profileRuntimeData,
-        getMediaWikiRuntimeOptions: () => profile ? profile.makeRuntimeOptions(getRuntimeContext()) : {},
-        extensions: profile ? profile.createExtensions({
-          getData: () => this.profileRuntimeData,
-          getOptions: () => profile.makeRuntimeOptions(getRuntimeContext())
+        getMediaWikiRuntimeData: () => this.projectionRuntimeData,
+        getMediaWikiRuntimeOptions: () => projection ? projection.makeRuntimeOptions(getRuntimeContext()) : {},
+        extensions: projection ? projection.createExtensions({
+          getData: () => this.projectionRuntimeData,
+          getOptions: () => projection.makeRuntimeOptions(getRuntimeContext())
         }) : [],
-        getCapabilities: () => profile ? profile.capabilities : [],
+        getCapabilities: () => projection ? projection.capabilities : [],
         schedule: (callback) => this.$nextTick(callback)
       });
-      return this.legacySkinRuntimeController;
+      return this.projectionRuntimeController;
     },
     requestTheTreePageData(path, { signal } = {}) {
       return this.internalRequest(path, { signal, noProgress: true });
     },
-    makeProfileRuntimeContext() {
+    makeProjectionRuntimeContext() {
       const config = this.$store.state.config || {};
       return {
         adapterContext: this.adapterContext,
-        contentSurface: this.contentSurface,
+        contentSurface: this.projectionSurface,
         getRoot: () => this.$refs.contentText || null,
         lang: config.lang || config['wiki.lang'] || 'ko',
         config,
@@ -283,17 +279,15 @@ export default {
         }
       };
     },
-    initLegacySkinRuntime() {
-      this.ensureLegacySkinRuntimeController().init();
+    initProjectionRuntime() {
+      this.ensureProjectionRuntimeController().init();
     },
-    teardownLegacySkinRuntime() {
-      if (this.legacySkinRuntimeController) {
-        this.legacySkinRuntimeController.destroy();
-      }
-      this.legacySkinRuntimeController = null;
+    teardownProjectionRuntime() {
+      if (this.projectionRuntimeController) this.projectionRuntimeController.destroy();
+      this.projectionRuntimeController = null;
     },
-    resetLegacySkinRuntime() {
-      this.ensureLegacySkinRuntimeController().reset();
+    resetProjectionRuntime() {
+      this.ensureProjectionRuntimeController().reset();
     }
   }
 };

@@ -29,11 +29,20 @@ function rules(relativePath) {
 assert.deepEqual(imports(read('css/screen.css')), [
   './vendor/resource-loader/page-styles.css',
   './vector-adapter.css',
-  './host-content.css',
-  './profile.css'
+  './host-content.css'
 ]);
 
-assert.equal(read('css/profile.css').trim(), '/* Optional feature profiles add their stylesheet imports at this boundary. */');
+for (const relativePath of ['layout.vue', 'components/SkinLegacy.vue', 'lib/legacyTheTreeAdapter.js']) {
+  assert.doesNotMatch(read(relativePath), /\b(?:skinProfile|contentProfile|activeContentProfile)\b/);
+}
+for (const relativePath of [
+  'css/profile.css',
+  'lib/skinProfile.js',
+  'lib/runtime/createExtensionRuntimeHost.js',
+  'lib/runtime/createSkinRuntimeController.js'
+]) {
+  assert.equal(fs.existsSync(path.join(root, relativePath)), false);
+}
 
 assert.deepEqual(imports(read('css/host-content.css')), [
   './host-content/foundation.css',

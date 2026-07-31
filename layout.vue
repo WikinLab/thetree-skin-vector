@@ -5,10 +5,11 @@
     :lang="legacyDocumentEnvironment.htmlAttributes.lang"
     :dir="legacyDocumentEnvironment.htmlAttributes.dir"
     :data-tt-skin-variant="skinVariantId"
-    :data-tt-content-profile="activeContentProfile ? activeContentProfile.id : null"
-    :data-tt-content-transform="activeContentProfile ? contentTransformSignature : null"
+    :data-tt-content-projection="activeContentProjection ? activeContentProjection.id : null"
+    :data-tt-content-transform="activeContentProjection ? projectionTransformSignature : null"
+    @click.capture="onContentProjectionClick"
   >
-    <SkinLegacy :content-profile="activeContentProfile">
+    <SkinLegacy :content-projection="activeContentProjection">
       <nuxt />
     </SkinLegacy>
   </div>
@@ -24,7 +25,7 @@ import { applyLegacyDocumentEnvironment, makeLegacyDocumentEnvironment } from '.
 import { makeTheTreeAdapterContext } from './lib/legacyTheTreeAdapter';
 import { makeLegacySkinVars, makeLegacyThemeColor } from './lib/legacySkinVars';
 import { SKIN_VARIANT_ID } from './lib/skinVariant.js';
-import skinProfile from './lib/skinProfile.js';
+import contentProjectionLayer from './projection/lib/contentProjectionLayer.js';
 
 export default {
   name: 'TheTreeVectorSkin',
@@ -33,15 +34,15 @@ export default {
   },
   data() {
     return {
-      contentStoreRuntime: null,
-      contentTransformSignature: 'source-content',
+      contentProjectionLayer,
+      contentProjectionStoreRuntime: null,
       legacyDocumentCleanup: null,
-      skinProfile,
+      projectionTransformSignature: 'source-content',
       skinVariantId: SKIN_VARIANT_ID
     };
   },
   created() {
-    this.installContentStoreRuntime();
+    this.installContentProjectionStoreRuntime();
   },
   head() {
     return {
@@ -64,8 +65,10 @@ export default {
         route: this.$route
       });
     },
-    activeContentProfile() {
-      return this.skinProfile.isEnabled(this.adapterContext) ? this.skinProfile : null;
+    activeContentProjection() {
+      return this.contentProjectionLayer.isEnabled(this.adapterContext)
+        ? this.contentProjectionLayer
+        : null;
     },
     legacyDocumentEnvironment() {
       const config = this.$store.state.config || {};
@@ -105,28 +108,34 @@ export default {
     this.syncLegacyDocumentEnvironment();
   },
   beforeDestroy() {
-    this.teardownContentStoreRuntime();
+    this.teardownContentProjectionStoreRuntime();
     this.teardownLegacyDocumentEnvironment();
   },
   beforeUnmount() {
-    this.teardownContentStoreRuntime();
+    this.teardownContentProjectionStoreRuntime();
     this.teardownLegacyDocumentEnvironment();
   },
   methods: {
-    installContentStoreRuntime() {
-      const profile = this.activeContentProfile;
-      if (!profile || typeof profile.createStoreRuntime !== 'function' || this.contentStoreRuntime) return;
-      this.contentStoreRuntime = profile.createStoreRuntime({
+    onContentProjectionClick(event) {
+      this.contentProjectionLayer.handleClick(event, {
+        adapterContext: this.adapterContext,
+        storeState: this.$store.state
+      });
+    },
+    installContentProjectionStoreRuntime() {
+      const projection = this.activeContentProjection;
+      if (!projection || !projection.createStoreRuntime || this.contentProjectionStoreRuntime) return;
+      this.contentProjectionStoreRuntime = projection.createStoreRuntime({
         store: this.$store,
         onUpdate: (signature) => {
-          this.contentTransformSignature = signature;
+          this.projectionTransformSignature = signature;
         }
       });
-      this.contentStoreRuntime.init();
+      this.contentProjectionStoreRuntime.init();
     },
-    teardownContentStoreRuntime() {
-      if (this.contentStoreRuntime) this.contentStoreRuntime.destroy();
-      this.contentStoreRuntime = null;
+    teardownContentProjectionStoreRuntime() {
+      if (this.contentProjectionStoreRuntime) this.contentProjectionStoreRuntime.destroy();
+      this.contentProjectionStoreRuntime = null;
     },
     syncLegacyDocumentEnvironment() {
       this.teardownLegacyDocumentEnvironment();

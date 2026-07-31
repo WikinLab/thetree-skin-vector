@@ -1126,11 +1126,6 @@
         "hostDependency": "thetree"
       },
       {
-        "path": "css/profile.css",
-        "kind": "skin-integration",
-        "hostDependency": "none"
-      },
-      {
         "path": "css/screen.css",
         "kind": "skin-integration",
         "hostDependency": "thetree"
@@ -1266,21 +1261,6 @@
         "hostDependency": "none"
       },
       {
-        "path": "lib/runtime/createExtensionRuntimeHost.js",
-        "kind": "skin-integration",
-        "hostDependency": "none"
-      },
-      {
-        "path": "lib/runtime/createSkinRuntimeController.js",
-        "kind": "skin-integration",
-        "hostDependency": "thetree"
-      },
-      {
-        "path": "lib/skinProfile.js",
-        "kind": "skin-integration",
-        "hostDependency": "none"
-      },
-      {
         "path": "lib/skinVariant.js",
         "kind": "skin-integration",
         "hostDependency": "none"
@@ -1317,6 +1297,11 @@
       },
       {
         "path": "projection/css/content-projection.css",
+        "kind": "skin-integration",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/css/index.css",
         "kind": "skin-integration",
         "hostDependency": "thetree"
       },
@@ -1424,6 +1409,11 @@
         "path": "projection/lib/contentProjection/categoryData.js",
         "kind": "parser-output-adapter",
         "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/contentProjectionLayer.js",
+        "kind": "skin-integration",
+        "hostDependency": "thetree"
       },
       {
         "path": "projection/lib/contentProjection/fragmentNavigation.js",
@@ -1549,6 +1539,16 @@
         "path": "projection/lib/runtime/capabilities.js",
         "kind": "skin-integration",
         "hostDependency": "none"
+      },
+      {
+        "path": "projection/lib/runtime/createExtensionRuntimeHost.js",
+        "kind": "skin-integration",
+        "hostDependency": "none"
+      },
+      {
+        "path": "projection/lib/runtime/createProjectionRuntimeController.js",
+        "kind": "skin-integration",
+        "hostDependency": "thetree"
       },
       {
         "path": "projection/tools/content-projection-contract-test.mjs",
@@ -2145,8 +2145,8 @@
       "schema": 1,
       "delivery": "branch-layer",
       "javascriptEntry": "projection/lib/contentProjection/index.js",
-      "javascriptConsumer": "lib/skinProfile.js",
-      "stylesheetEntry": "css/profile.css",
+      "javascriptConsumer": "projection/lib/contentProjectionLayer.js",
+      "stylesheetEntry": "projection/css/index.css",
       "stylesheetConsumer": "css/screen.css",
       "activationAttribute": "data-tt-content-projection",
       "activationValue": "vector-legacy-projection",
@@ -2189,7 +2189,7 @@
       "adapterImports": [
         "css/vector-adapter.css",
         "css/host-content.css",
-        "css/profile.css"
+        "projection/css/index.css"
       ],
       "resourceLoaderContract": "contracts/resource-loader-origin-contract.json",
       "hostLimitation": "thetree skin CSS is selected as one static entry. This branch appends the isolated projection layer to the shared Vector chrome."

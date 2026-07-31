@@ -76,6 +76,10 @@ npm run bootstrap -- --clean
 
 원본을 내려받는 과정에서 멈춘 경우에는 서버에서 GitHub에 연결할 수 있는지 확인합니다.
 
+## 개발 도구
+
+이 프로젝트의 개발에는 OpenAI ChatGPT가 사용되었습니다.
+
 ## 버전과 라이선스
 
 현재 버전은 `package.json`에서 확인할 수 있으며, 릴리스 태그는 `projection-vX.Y.Z` 형식을 사용합니다.

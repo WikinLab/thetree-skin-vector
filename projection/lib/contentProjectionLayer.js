@@ -1,12 +1,12 @@
-import vectorContentProjection from '../projection/lib/contentProjection/index.js';
+import vectorContentProjection from './contentProjection/index.js';
 import {
   insertContentProjectionPersonalTool,
   isContentProjectionToggleTarget,
   resolveContentProjectionPreference,
   toggleTheTreeContentProjection
-} from '../projection/lib/adapters/thetree-content-projection.js';
-import { makeTheTreePopupsRuntimeData } from '../projection/lib/adapters/thetree-popups/data.js';
-import { createTheTreePopupsExtension } from '../projection/lib/adapters/thetree-popups/extension.js';
+} from './adapters/thetree-content-projection.js';
+import { makeTheTreePopupsRuntimeData } from './adapters/thetree-popups/data.js';
+import { createTheTreePopupsExtension } from './adapters/thetree-popups/extension.js';
 
 function contentDirectionClass(context = {}) {
   const direction = context.config?.dir || context.config?.['wiki.dir'] || 'ltr';
@@ -74,7 +74,7 @@ function createMountedRuntime(optionsSource) {
   });
 }
 
-const skinProfile = Object.freeze({
+const contentProjectionLayer = Object.freeze({
   id: 'vector-legacy-projection',
   isEnabled: (context) => resolveContentProjectionPreference(context).enabled,
   resolveSurface: vectorContentProjection.resolveSurface,
@@ -96,4 +96,4 @@ const skinProfile = Object.freeze({
   capabilities: vectorContentProjection.capabilities
 });
 
-export default skinProfile;
+export default contentProjectionLayer;
