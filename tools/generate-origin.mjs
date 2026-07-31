@@ -74,6 +74,22 @@ function entriesAtInventories(manifest, inventoryPaths, label) {
   return entries;
 }
 
+function listSourceCoverageFiles(contract) {
+  const relativeRoot = normalizeRelativePath(contract.root || '.').replace(/\/$/, '');
+  if (fs.existsSync(path.join(root, '.git'))) {
+    const args = ['ls-files', '--cached', '--others', '--exclude-standard', '-z', '--'];
+    if (relativeRoot && relativeRoot !== '.') args.push(relativeRoot);
+    const result = spawnSync('git', args, { cwd: root, encoding: 'utf8', windowsHide: true });
+    if (result.error || result.status !== 0) {
+      throw new Error(`Unable to enumerate Git-visible source files: ${result.error?.message || result.stderr || result.stdout}`);
+    }
+    return result.stdout.split('\0').filter(Boolean).map(normalizeRelativePath);
+  }
+
+  const coverageRoot = path.join(root, relativeRoot || '.');
+  return walkFiles(coverageRoot).map((pathname) => normalizeRelativePath(path.relative(root, pathname)));
+}
+
 function validateSourceInventoryCoverage(manifest) {
   const contract = manifest.sourceInventory?.sourceCoverage;
   if (!contract) return;
@@ -96,8 +112,7 @@ function validateSourceInventoryCoverage(manifest) {
     return normalizeRelativePath(pathname);
   }));
   const ignoredRoots = new Set((contract.ignoredRoots || []).map(normalizeRelativePath));
-  const coverageRoot = path.join(root, contract.root || '.');
-  const actual = new Set(walkFiles(coverageRoot).map((pathname) => normalizeRelativePath(path.relative(root, pathname))).filter((pathname) => {
+  const actual = new Set(listSourceCoverageFiles(contract).filter((pathname) => {
     if (!pathname || excluded.has(pathname)) return false;
     const firstSegment = pathname.split('/')[0];
     return !ignoredRoots.has(firstSegment);
