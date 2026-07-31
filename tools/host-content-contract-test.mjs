@@ -43,6 +43,8 @@ for (const relativePath of [
 ]) {
   assert.equal(fs.existsSync(path.join(root, relativePath)), false);
 }
+assert.equal(fs.existsSync(path.join(root, 'lib/runtime/createVectorRuntimeController.js')), true);
+assert.match(read('components/SkinLegacy.vue'), /createVectorRuntimeController/);
 
 assert.deepEqual(imports(read('css/host-content.css')), [
   './host-content/foundation.css',

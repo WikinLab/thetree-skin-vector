@@ -1261,6 +1261,11 @@
         "hostDependency": "none"
       },
       {
+        "path": "lib/runtime/createVectorRuntimeController.js",
+        "kind": "skin-integration",
+        "hostDependency": "thetree"
+      },
+      {
         "path": "lib/skinVariant.js",
         "kind": "skin-integration",
         "hostDependency": "none"

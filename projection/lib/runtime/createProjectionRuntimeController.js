@@ -1,5 +1,4 @@
-import { installTheTreeMediaWikiRuntime } from '../../../lib/adapters/thetree-mediawiki/runtime.js';
-import { createTheTreeVectorRuntime } from '../../../lib/adapters/thetree-vector/skin-legacy.js';
+import { createVectorRuntimeController } from '../../../lib/runtime/createVectorRuntimeController.js';
 import { createExtensionRuntimeHost } from './createExtensionRuntimeHost.js';
 
 function noop() {}
@@ -14,11 +13,13 @@ export function createProjectionRuntimeController({
   onContentTransform = noop,
   schedule = (callback) => callback()
 } = {}) {
-  let theTreeMediaWikiRuntime = null;
-  let theTreeVectorRuntime = null;
   let contentRuntime = null;
   let generation = 0;
   const extensionRuntimeHost = createExtensionRuntimeHost(extensions);
+  const vectorRuntimeController = createVectorRuntimeController({
+    getMediaWikiRuntimeData,
+    getMediaWikiRuntimeOptions
+  });
 
   function destroyRuntimes() {
     extensionRuntimeHost.destroy();
@@ -26,26 +27,13 @@ export function createProjectionRuntimeController({
       contentRuntime.destroy();
       contentRuntime = null;
     }
-    if (theTreeVectorRuntime) {
-      theTreeVectorRuntime.destroy();
-      theTreeVectorRuntime = null;
-    }
-    if (theTreeMediaWikiRuntime) {
-      theTreeMediaWikiRuntime.destroy();
-      theTreeMediaWikiRuntime = null;
-    }
+    vectorRuntimeController.destroy();
   }
 
   function initNow() {
     if (typeof window === 'undefined') return null;
     destroyRuntimes();
-
-    theTreeMediaWikiRuntime = installTheTreeMediaWikiRuntime(
-      getMediaWikiRuntimeData(),
-      getMediaWikiRuntimeOptions()
-    );
-    theTreeVectorRuntime = createTheTreeVectorRuntime();
-    theTreeVectorRuntime.init();
+    const vectorRuntime = vectorRuntimeController.init();
 
     const contentResult = typeof createContentRuntime === 'function'
       ? (() => {
@@ -56,7 +44,7 @@ export function createProjectionRuntimeController({
     onContentTransform(contentResult);
 
     const activeExtensions = extensionRuntimeHost.init(getCapabilities(), {
-      mediaWikiRuntime: theTreeMediaWikiRuntime
+      mediaWikiRuntime: vectorRuntime.mediaWikiRuntime
     });
     return Object.freeze({ contentTransform: contentResult, activeExtensions });
   }
