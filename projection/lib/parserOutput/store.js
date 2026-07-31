@@ -157,22 +157,3 @@ export function applyLegacyParserOutputTransformToStore(storeState, transformHtm
     changedPaths: aggregate.changedPaths
   };
 }
-
-export function subscribeLegacyParserOutputTransformToStore(store, storeState, onResult, transformHtmlFragment) {
-  if (!store || typeof store.subscribe !== 'function') return null;
-  let running = false;
-  const run = () => {
-    if (running) return { changed: 0, signature: 'compiler-reentrant-skip', visitedPaths: [], changedPaths: [] };
-    running = true;
-    try {
-      const result = applyLegacyParserOutputTransformToStore(storeState || store.state, transformHtmlFragment);
-      if (typeof onResult === 'function') onResult(result);
-      return result;
-    } finally {
-      running = false;
-    }
-  };
-  return store.subscribe(() => {
-    run();
-  });
-}

@@ -14,6 +14,7 @@ import { makeLegacyCategoryData } from './categoryData.js';
 import { createLegacyParserOutputFragmentNavigationRuntime } from './fragmentNavigation.js';
 import { createLegacyProjectionSurfaceRuntime } from './mounted.js';
 import { createLegacyParserOutputStoreRuntime } from './storeRuntime.js';
+import { applyLegacyParserOutputTransformToStore } from '../legacyParserOutputTransform.js';
 
 export const CONTENT_PROJECTION_ID = 'vector-legacy-projection';
 
@@ -58,6 +59,13 @@ function createMountedContentProjectionRuntime(optionsSource = {}) {
   return Object.freeze({ init, destroy });
 }
 
+function createStoreContentProjectionRuntime(options = {}) {
+  return createLegacyParserOutputStoreRuntime({
+    ...options,
+    transformState: applyLegacyParserOutputTransformToStore
+  });
+}
+
 function resolveProjectedSurface(context = {}) {
   const pageContract = getLegacyPageContract(context);
   const projection = pageContract.projection;
@@ -77,7 +85,7 @@ export const vectorContentProjection = Object.freeze({
   capabilities: Object.freeze([RUNTIME_CAPABILITIES.MEDIAWIKI_CONTENT_SURFACE]),
   resolveSurface: resolveProjectedSurface,
   makeCategoryData: makeLegacyCategoryData,
-  createStoreRuntime: createLegacyParserOutputStoreRuntime,
+  createStoreRuntime: createStoreContentProjectionRuntime,
   createMountedRuntime: createMountedContentProjectionRuntime
 });
 

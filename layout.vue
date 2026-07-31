@@ -44,6 +44,9 @@ export default {
   created() {
     this.installContentProjectionStoreRuntime();
   },
+  beforeUpdate() {
+    this.syncContentProjectionStoreRuntime();
+  },
   head() {
     return {
       htmlAttrs: {
@@ -126,12 +129,15 @@ export default {
       const projection = this.activeContentProjection;
       if (!projection || !projection.createStoreRuntime || this.contentProjectionStoreRuntime) return;
       this.contentProjectionStoreRuntime = projection.createStoreRuntime({
-        store: this.$store,
+        getState: () => this.$store.state,
         onUpdate: (signature) => {
           this.projectionTransformSignature = signature;
         }
       });
       this.contentProjectionStoreRuntime.init();
+    },
+    syncContentProjectionStoreRuntime() {
+      if (this.contentProjectionStoreRuntime) this.contentProjectionStoreRuntime.sync();
     },
     teardownContentProjectionStoreRuntime() {
       if (this.contentProjectionStoreRuntime) this.contentProjectionStoreRuntime.destroy();

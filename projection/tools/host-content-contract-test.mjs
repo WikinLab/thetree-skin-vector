@@ -58,6 +58,9 @@ for (const relativePath of [
 const projectionLayout = read('layout.vue');
 assert.match(projectionLayout, /@click\.capture="onContentProjectionClick"/);
 assert.match(projectionLayout, /contentProjectionLayer\.handleClick\(event/);
+assert.match(projectionLayout, /beforeUpdate\(\)\s*{\s*this\.syncContentProjectionStoreRuntime\(\)/);
+assert.match(projectionLayout, /getState:\s*\(\)\s*=>\s*this\.\$store\.state/);
+assert.doesNotMatch(read('projection/lib/contentProjection/storeRuntime.js'), /\.subscribe\(/);
 const projectionLayer = read('projection/lib/contentProjectionLayer.js');
 assert.match(projectionLayer, /event\.preventDefault\(\)/);
 assert.match(projectionLayer, /event\.stopPropagation\(\)/);
@@ -97,6 +100,7 @@ const rawResourceLoaderContract = JSON.parse(read('contracts/resource-loader-ori
 const resourceLoaderContract = resolveResourceLoaderOriginContract(root, rawResourceLoaderContract);
 const skinVariantContract = JSON.parse(read('contracts/skin-variant-contract.json'));
 const generatedVectorCss = read('css/vendor/resource-loader/skins.vector.styles.legacy.css');
+const categoryAdapterCss = read('projection/css/content-projection/vector-category.css');
 
 assert.equal(skinVariantContract.id, 'vector-legacy');
 assert.equal(
@@ -110,5 +114,8 @@ assert.match(
   generatedVectorCss,
   /data-tt-vector-surface="parser-output"/
 );
+assert.match(generatedVectorCss, /\.catlinks\s*{[\s\S]*?background-color:\s*#f8f9fa;[\s\S]*?border:\s*1px solid #aaa;/);
+assert.match(generatedVectorCss, /\.catlinks li\s*{[\s\S]*?display:\s*inline-block;/);
+assert.doesNotMatch(categoryAdapterCss, /\b(?:background|border|color|margin|padding|text-align)\s*:/);
 
 console.log('checked projection ownership and Vector chrome contract');

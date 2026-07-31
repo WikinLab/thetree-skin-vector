@@ -1,45 +1,14 @@
-/* Projected-content adapter for Vector-owned category output. */
-
-[data-tt-vector-catlinks-surface="1"] {
-  clear: both;
-  margin-top: 1em;
-  padding: 5px;
-  border: var(--border-width-base) var(--border-style-base) var(--border-color-base);
-  background: var(--background-color-neutral-subtle);
-  color: var(--color-base);
-  text-align: left;
-}
-
-[data-tt-vector-catlinks-surface="1"] .mw-normal-catlinks ul {
-  display: inline;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-[data-tt-vector-catlinks-surface="1"] .mw-normal-catlinks li {
-  display: inline;
-  margin: 0;
-  padding: 0 0.5em;
-  border-left: var(--border-width-base) var(--border-style-base) var(--border-color-base);
-  line-height: 1.25em;
-}
-
-[data-tt-vector-catlinks-surface="1"] .mw-normal-catlinks li:first-child {
-  border-left: 0;
-  padding-left: 0.25em;
-}
-
-[data-tt-vector-catlinks-surface="1"] .mw-catlinks-label {
-  color: var(--color-base);
-}
+/*
+ * Category ownership adapter.
+ *
+ * MediaWiki's generated interface-category ResourceLoader feature owns every
+ * visual declaration for the emitted #catlinks surface.  This local boundary
+ * only suppresses the tree source node when structured category data already
+ * produced that upstream surface.
+ */
 
 #mw-content-text[data-tt-host-content="1"][data-tt-vector-surface="parser-output"] > :is(.category, .wiki-category, [data-content-role='categories']),
 #mw-content-text[data-tt-host-content="1"][data-tt-vector-surface="parser-output"] > .wiki-content + :is(.category, .wiki-category, [data-content-role='categories']),
 #mw-content-text[data-tt-host-content="1"][data-tt-vector-surface="parser-output"] [data-tt-vector-category-source='1'] {
   display: none !important;
-}
-
-[data-tt-vector-catlinks-surface="1"] {
-  display: block;
 }

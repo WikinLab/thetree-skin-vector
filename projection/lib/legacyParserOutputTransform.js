@@ -75,8 +75,7 @@ import {
 import {
   STORE_ARTICLE_HTML_TARGETS,
   applyLegacyParserOutputTransformToStore as applyStoreParserOutputTransform,
-  collectLegacyParserOutputStoreTargets,
-  subscribeLegacyParserOutputTransformToStore as subscribeStoreParserOutputTransform
+  collectLegacyParserOutputStoreTargets
 } from './parserOutput/store.js';
 
 export {
@@ -202,8 +201,4 @@ export const transformHtmlFragment = projectParserOutputHtml;
 
 export function applyLegacyParserOutputTransformToStore(storeState) {
   return applyStoreParserOutputTransform(storeState, projectParserOutputHtml);
-}
-
-export function subscribeLegacyParserOutputTransformToStore(store, storeState, onResult) {
-  return subscribeStoreParserOutputTransform(store, storeState, onResult, projectParserOutputHtml);
 }
