@@ -20,10 +20,12 @@
       "commit": "698e2122bafdd02e6e65170c1d55b319336a7e72",
       "checkout": "host-thetree",
       "sourceRoots": [
-        "routes"
+        "routes",
+        "utils/namumark"
       ],
       "bootstrapPaths": [
-        "routes/"
+        "routes/",
+        "utils/namumark/"
       ]
     },
     "contract": "lib/legacySpecialPageContract.js",
@@ -57,6 +59,7 @@
       "ignoredRoots": [
         ".build-tools",
         ".git",
+        ".test-dist",
         ".upstream",
         "node_modules",
         "vendor"
@@ -478,6 +481,12 @@
         "upstreamPath": "src/constants.js"
       },
       {
+        "path": "vendor/mediawiki-popups/src/changeListeners/footerLink.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/changeListeners/footerLink.js"
+      },
+      {
         "path": "vendor/mediawiki-popups/src/preview/model.js",
         "status": "mirrored",
         "repository": "mediawiki-extensions-Popups",
@@ -532,6 +541,18 @@
         "upstreamPath": "src/ui/settingsDialogRenderer.less"
       },
       {
+        "path": "vendor/mediawiki-popups/src/ui/settingsDialog.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/settingsDialog.js"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/settingsDialogRenderer.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/settingsDialogRenderer.js"
+      },
+      {
         "path": "vendor/mediawiki-popups/src/ui/templates/pagePreview/pagePreview.js",
         "status": "mirrored",
         "repository": "mediawiki-extensions-Popups",
@@ -566,6 +587,12 @@
         "status": "mirrored",
         "repository": "mediawiki-extensions-Popups",
         "upstreamPath": "src/ui/templates/settingsDialog/settingsDialog.less"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/templates/settingsDialog/settingsDialog.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/templates/settingsDialog/settingsDialog.js"
       },
       {
         "path": "vendor/mediawiki-popups/src/ui/templates/templateUtil.js",
@@ -1099,6 +1126,11 @@
         "hostDependency": "thetree"
       },
       {
+        "path": "css/profile.css",
+        "kind": "skin-integration",
+        "hostDependency": "none"
+      },
+      {
         "path": "css/screen.css",
         "kind": "skin-integration",
         "hostDependency": "thetree"
@@ -1180,8 +1212,8 @@
       },
       {
         "path": "lib/legacyRawHtmlFragment.js",
-        "kind": "parser-output-adapter",
-        "hostDependency": "thetree-mediawiki-boundary"
+        "kind": "host-adapter",
+        "hostDependency": "thetree-browser-dom"
       },
       {
         "path": "lib/legacySearchBoxData.js",
@@ -1229,19 +1261,24 @@
         "hostDependency": "thetree"
       },
       {
-        "path": "lib/mustacheTemplateEngine.js",
+        "path": "lib/mustacheVueRuntime.js",
         "kind": "origin-runtime",
         "hostDependency": "none"
       },
       {
-        "path": "lib/mustacheVueRuntime.js",
-        "kind": "origin-runtime",
+        "path": "lib/runtime/createExtensionRuntimeHost.js",
+        "kind": "skin-integration",
         "hostDependency": "none"
       },
       {
         "path": "lib/runtime/createSkinRuntimeController.js",
         "kind": "skin-integration",
         "hostDependency": "thetree"
+      },
+      {
+        "path": "lib/skinProfile.js",
+        "kind": "skin-integration",
+        "hostDependency": "none"
       },
       {
         "path": "lib/skinVariant.js",
@@ -1255,6 +1292,11 @@
       },
       {
         "path": "NOTICE",
+        "kind": "package-metadata",
+        "hostDependency": "none"
+      },
+      {
+        "path": "THIRD_PARTY_NOTICES.md",
         "kind": "package-metadata",
         "hostDependency": "none"
       },
@@ -1316,7 +1358,7 @@
       {
         "path": "projection/lib/adapters/thetree-popups/footerLink.js",
         "kind": "host-adapter",
-        "hostDependency": "thetree"
+        "hostDependency": "thetree-spa-lifecycle"
       },
       {
         "path": "projection/lib/adapters/thetree-popups/gateway.js",
@@ -1361,7 +1403,7 @@
       {
         "path": "projection/lib/adapters/thetree-popups/settingsDialog.js",
         "kind": "host-adapter",
-        "hostDependency": "thetree"
+        "hostDependency": "thetree-spa-lifecycle"
       },
       {
         "path": "projection/lib/adapters/thetree-popups/sourceBridge.js",
@@ -1509,11 +1551,6 @@
         "hostDependency": "none"
       },
       {
-        "path": "projection/lib/runtime/createExtensionRuntimeHost.js",
-        "kind": "skin-integration",
-        "hostDependency": "none"
-      },
-      {
         "path": "projection/tools/content-projection-contract-test.mjs",
         "kind": "generation-contract",
         "hostDependency": "none"
@@ -1544,6 +1581,11 @@
         "hostDependency": "none"
       },
       {
+        "path": "tools/distribution-contract-test.mjs",
+        "kind": "generation-contract",
+        "hostDependency": "none"
+      },
+      {
         "path": "tools/generate-origin.mjs",
         "kind": "generation-tool",
         "hostDependency": "none"
@@ -1566,6 +1608,11 @@
       {
         "path": "tools/mustache-vue-origin-engine.mjs",
         "kind": "generation-tool",
+        "hostDependency": "none"
+      },
+      {
+        "path": "tools/mustache-origin-contract-test.mjs",
+        "kind": "generation-contract",
         "hostDependency": "none"
       },
       {
@@ -1790,12 +1837,81 @@
         "originNode": "resource-loader-css"
       },
       {
+        "path": "projection/lib/generated/mediawiki-popups/src/changeListeners/footerLink.js",
+        "originNode": "javascript-ports",
+        "input": "vendor/mediawiki-popups/src/changeListeners/footerLink.js",
+        "dependencies": [],
+        "transform": {
+          "kind": "esm-copy"
+        }
+      },
+      {
         "path": "projection/lib/generated/mediawiki-popups/src/title.js",
         "originNode": "javascript-ports",
         "input": "vendor/mediawiki-popups/src/title.js",
         "dependencies": [],
         "transform": {
           "kind": "esm-copy"
+        }
+      },
+      {
+        "path": "projection/lib/generated/mediawiki-popups/src/ui/templates/templateUtil.js",
+        "originNode": "javascript-ports",
+        "input": "vendor/mediawiki-popups/src/ui/templates/templateUtil.js",
+        "dependencies": [],
+        "transform": {
+          "kind": "esm-copy"
+        }
+      },
+      {
+        "path": "projection/lib/generated/mediawiki-popups/src/ui/templates/settingsDialog/settingsDialog.js",
+        "originNode": "javascript-ports",
+        "input": "vendor/mediawiki-popups/src/ui/templates/settingsDialog/settingsDialog.js",
+        "dependencies": [
+          "projection/lib/generated/mediawiki-popups/src/ui/templates/templateUtil.js"
+        ],
+        "transform": {
+          "kind": "esm-copy",
+          "importRewrites": [
+            {
+              "from": "../templateUtil",
+              "to": "../templateUtil.js"
+            }
+          ]
+        }
+      },
+      {
+        "path": "projection/lib/generated/mediawiki-popups/src/ui/settingsDialog.js",
+        "originNode": "javascript-ports",
+        "input": "vendor/mediawiki-popups/src/ui/settingsDialog.js",
+        "dependencies": [
+          "projection/lib/generated/mediawiki-popups/src/ui/templates/settingsDialog/settingsDialog.js"
+        ],
+        "transform": {
+          "kind": "esm-copy",
+          "importRewrites": [
+            {
+              "from": "./templates/settingsDialog/settingsDialog",
+              "to": "./templates/settingsDialog/settingsDialog.js"
+            }
+          ]
+        }
+      },
+      {
+        "path": "projection/lib/generated/mediawiki-popups/src/ui/settingsDialogRenderer.js",
+        "originNode": "javascript-ports",
+        "input": "vendor/mediawiki-popups/src/ui/settingsDialogRenderer.js",
+        "dependencies": [
+          "projection/lib/generated/mediawiki-popups/src/ui/settingsDialog.js"
+        ],
+        "transform": {
+          "kind": "esm-copy",
+          "importRewrites": [
+            {
+              "from": "./settingsDialog",
+              "to": "./settingsDialog.js"
+            }
+          ]
         }
       },
       {
@@ -2029,11 +2145,11 @@
       "schema": 1,
       "delivery": "branch-layer",
       "javascriptEntry": "projection/lib/contentProjection/index.js",
-      "javascriptConsumer": "layout.vue",
-      "stylesheetEntry": "projection/css/content-projection.css",
+      "javascriptConsumer": "lib/skinProfile.js",
+      "stylesheetEntry": "css/profile.css",
       "stylesheetConsumer": "css/screen.css",
       "activationAttribute": "data-tt-content-projection",
-      "activationValue": "vector-legacy",
+      "activationValue": "vector-legacy-projection",
       "preferenceAdapter": "projection/lib/adapters/thetree-content-projection.js",
       "defaultEnabled": true,
       "serverDataKey": "thetreeVectorContentProjection"
@@ -2050,6 +2166,7 @@
       "ignoredRoots": [
         ".build-tools",
         ".git",
+        ".test-dist",
         ".upstream",
         "node_modules",
         "vendor"
@@ -2072,8 +2189,7 @@
       "adapterImports": [
         "css/vector-adapter.css",
         "css/host-content.css",
-        "projection/css/content-projection.css",
-        "projection/css/popups-adapter.css"
+        "css/profile.css"
       ],
       "resourceLoaderContract": "contracts/resource-loader-origin-contract.json",
       "hostLimitation": "thetree skin CSS is selected as one static entry. This branch appends the isolated projection layer to the shared Vector chrome."

@@ -99,6 +99,13 @@ export function makeTheTreePopupsRuntimeData(context = {}) {
     textExtractsIntroOnly: config.popupsTextExtractsIntroOnly !== false,
     extractLength: Number.isFinite(config.popupsExtractLength) ? config.popupsExtractLength : 525,
     thumbnailSize: Number.isFinite(config.popupsThumbnailSize) ? config.popupsThumbnailSize : 0,
-    messages: Object.freeze({ ...defaultMessages, ...messages })
+    messages: Object.freeze({ ...defaultMessages, ...messages }),
+    config: Object.freeze({
+      wgPopupsGateway: stringConfig(config, 'popupsSummaryEndpoint', '') ? 'theTreeSummary' : 'none',
+      wgPopupsRestGatewayEndpoint: stringConfig(config, 'popupsSummaryEndpoint', ''),
+      wgPopupsTextExtractsIntroOnly: config.popupsTextExtractsIntroOnly !== false,
+      wgPopupsVirtualPageViews: false,
+      wgCiteReferencePreviewsActive: pageContract.isArticle === true
+    })
   });
 }

@@ -5,10 +5,10 @@
     :lang="legacyDocumentEnvironment.htmlAttributes.lang"
     :dir="legacyDocumentEnvironment.htmlAttributes.dir"
     :data-tt-skin-variant="skinVariantId"
-    :data-tt-content-projection="activeContentProjection ? activeContentProjection.id : null"
-    :data-tt-content-transform="contentTransformSignature"
+    :data-tt-content-profile="activeContentProfile ? activeContentProfile.id : null"
+    :data-tt-content-transform="activeContentProfile ? contentTransformSignature : null"
   >
-    <SkinLegacy :content-projection="activeContentProjection">
+    <SkinLegacy :content-profile="activeContentProfile">
       <nuxt />
     </SkinLegacy>
   </div>
@@ -24,8 +24,7 @@ import { applyLegacyDocumentEnvironment, makeLegacyDocumentEnvironment } from '.
 import { makeTheTreeAdapterContext } from './lib/legacyTheTreeAdapter';
 import { makeLegacySkinVars, makeLegacyThemeColor } from './lib/legacySkinVars';
 import { SKIN_VARIANT_ID } from './lib/skinVariant.js';
-import vectorContentProjection from './projection/lib/contentProjection';
-import { resolveContentProjectionPreference } from './projection/lib/adapters/thetree-content-projection.js';
+import skinProfile from './lib/skinProfile.js';
 
 export default {
   name: 'TheTreeVectorSkin',
@@ -34,18 +33,15 @@ export default {
   },
   data() {
     return {
-      legacyDocumentCleanup: null,
       contentStoreRuntime: null,
-      contentTransformSignature: 'projection-pending',
-      contentProjection: vectorContentProjection,
+      contentTransformSignature: 'source-content',
+      legacyDocumentCleanup: null,
+      skinProfile,
       skinVariantId: SKIN_VARIANT_ID
     };
   },
   created() {
     this.installContentStoreRuntime();
-  },
-  beforeUpdate() {
-    this.syncContentStoreRuntime();
   },
   head() {
     return {
@@ -68,11 +64,8 @@ export default {
         route: this.$route
       });
     },
-    projectionPreference() {
-      return resolveContentProjectionPreference(this.adapterContext);
-    },
-    activeContentProjection() {
-      return this.projectionPreference.enabled ? this.contentProjection : null;
+    activeContentProfile() {
+      return this.skinProfile.isEnabled(this.adapterContext) ? this.skinProfile : null;
     },
     legacyDocumentEnvironment() {
       const config = this.$store.state.config || {};
@@ -121,21 +114,15 @@ export default {
   },
   methods: {
     installContentStoreRuntime() {
-      if (this.contentStoreRuntime) return;
-      if (!this.activeContentProjection) {
-        this.contentTransformSignature = 'source-content';
-        return;
-      }
-      this.contentStoreRuntime = this.activeContentProjection.createStoreRuntime({
+      const profile = this.activeContentProfile;
+      if (!profile || typeof profile.createStoreRuntime !== 'function' || this.contentStoreRuntime) return;
+      this.contentStoreRuntime = profile.createStoreRuntime({
         store: this.$store,
         onUpdate: (signature) => {
           this.contentTransformSignature = signature;
         }
       });
       this.contentStoreRuntime.init();
-    },
-    syncContentStoreRuntime() {
-      if (this.contentStoreRuntime) this.contentStoreRuntime.sync();
     },
     teardownContentStoreRuntime() {
       if (this.contentStoreRuntime) this.contentStoreRuntime.destroy();

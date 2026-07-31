@@ -1,93 +1,49 @@
-/*
- * Port of Popups src/changeListeners/footerLink.js with the TheTree/Vue
- * lifecycle isolated to the footer mount adapter.  Upstream Popups owns the
- * change-listener contract: create one settings link, show it when
- * settings.shouldShowFooterLink is true, hide it otherwise, and call
- * showSettings() on click.  The adapter owns only locating and cleaning up the
- * runtime-owned DOM node in the tree-hosted Vector footer.
- */
+/* thetree SPA lifecycle adapter around the generated upstream Popups listener. */
+
+import createUpstreamFooterLink from '../../generated/mediawiki-popups/src/changeListeners/footerLink.js';
 
 const FOOTER_LINK_OWNER_ATTR = 'data-tt-popups-footer-link';
 
-function messageText(messages, key) {
-  return (messages && messages[key]) || key;
-}
-
-function mediaWikiFooterCandidates() {
+function footerLists() {
   return [
     document.querySelector('#footer-places'),
     document.querySelector('#f-list'),
-    (() => {
-      const footerLegacy = document.querySelector('#footer li');
-      return footerLegacy ? footerLegacy.parentNode : null;
-    })()
+    document.querySelector('#footer li')?.parentNode || null
   ].filter(Boolean);
 }
 
-function findFooterList() {
-  return mediaWikiFooterCandidates()[0] || null;
+function childSnapshots() {
+  return new Map(footerLists().map((footer) => [footer, new Set(footer.children)]));
 }
 
-function removeOwnedFooterLinks(footer) {
-  if (!footer) return;
-  footer.querySelectorAll(`li[${FOOTER_LINK_OWNER_ATTR}="1"]`).forEach((node) => node.remove());
-}
-
-export function createFooterLink(messages = {}) {
-  const footer = findFooterList();
-  if (!footer) return null;
-
-  removeOwnedFooterLinks(footer);
-
-  const footerListItem = document.createElement('li');
-  footerListItem.setAttribute(FOOTER_LINK_OWNER_ATTR, '1');
-  const footerLinkElement = document.createElement('a');
-  footerLinkElement.href = '#';
-  footerLinkElement.textContent = messageText(messages, 'popups-settings-enable');
-  footerListItem.appendChild(footerLinkElement);
-  footerListItem.style.display = 'none';
-  footer.appendChild(footerListItem);
-  return footerListItem;
-}
-
-export default function footerLink(boundActions, messages = {}) {
-  let footerListItem;
-  let handleClick;
-
-  function ensureFooterLink() {
-    if (footerListItem && footerListItem.isConnected) return footerListItem;
-    footerListItem = createFooterLink(messages);
-    if (!footerListItem) return null;
-    const footerLinkElement = footerListItem.querySelector('a');
-    handleClick = (event) => {
-      event.preventDefault();
-      boundActions.showSettings();
-    };
-    footerLinkElement.addEventListener('click', handleClick);
-    return footerListItem;
+function findAppendedFooterItem(before) {
+  for (const [footer, children] of before) {
+    const appended = [...footer.children].find((child) => !children.has(child));
+    if (appended) return appended;
   }
+  return null;
+}
+
+export default function createFooterLinkChangeListener(boundActions) {
+  let upstreamListener = createUpstreamFooterLink(boundActions);
+  let ownedNode = null;
 
   const listener = (oldState, newState) => {
-    const node = ensureFooterLink();
-    if (!node) return;
-
-    if (newState.settings.shouldShowFooterLink) {
-      node.style.display = '';
-    } else {
-      node.style.display = 'none';
+    if (ownedNode && !ownedNode.isConnected) {
+      upstreamListener = createUpstreamFooterLink(boundActions);
+      ownedNode = null;
+    }
+    const before = ownedNode ? null : childSnapshots();
+    upstreamListener(oldState, newState);
+    if (!ownedNode && before) {
+      ownedNode = findAppendedFooterItem(before);
+      if (ownedNode) ownedNode.setAttribute(FOOTER_LINK_OWNER_ATTR, '1');
     }
   };
 
   listener.destroy = () => {
-    if (footerListItem) {
-      const footerLinkElement = footerListItem.querySelector('a');
-      if (footerLinkElement && handleClick) {
-        footerLinkElement.removeEventListener('click', handleClick);
-      }
-      footerListItem.remove();
-    }
-    footerListItem = null;
-    handleClick = null;
+    if (ownedNode) ownedNode.remove();
+    ownedNode = null;
   };
 
   return listener;

@@ -294,11 +294,18 @@ export function createLegacyProjectionSurfaceRuntime(optionsSource = {}) {
     const options = resolveOptions(optionsSource);
     const root = resolveRoot(options);
     if (root && typeof MutationObserver === 'function') {
-      observer = new MutationObserver(schedule);
+      observer = new MutationObserver((records) => {
+        // ParserOutput surfaces are introduced or replaced as nodes. Ignoring
+        // character-data churn avoids rescanning the complete projection root
+        // for unrelated text updates while retaining route/dynamic-view support.
+        if (records.some((record) => record.type === 'childList'
+          && (record.addedNodes.length || record.removedNodes.length))) {
+          schedule();
+        }
+      });
       observer.observe(root, {
         childList: true,
-        subtree: true,
-        characterData: true
+        subtree: true
       });
     }
     return lastResult;

@@ -176,8 +176,8 @@
     "defaultMode": "locked-snapshot",
     "refreshMode": "npm run bootstrap -- --refresh",
     "releaseMode": "npm run bootstrap -- --release 1.47",
-    "transaction": "A refresh or release candidate replaces the lock and manifest only when clone, repository-local upstream builds, materialization, generation, and generated-output freshness checks all succeed.",
-    "toolingInstall": "Root tooling and project-owned upstream build toolchains use npm ci with their distributed package-lock.json files. The lock files are treated as immutable inputs and any attempted mutation fails.",
+    "transaction": "A refresh or release candidate replaces the lock and manifest only when clone, repository-local upstream builds, staged materialization, generation, and contract checks all succeed. Existing materialized state is retained on failure.",
+    "toolingInstall": "Root tooling and project-owned upstream build toolchains use npm ci when their lock, runtime, or installation contract fingerprint changes. The lock files are immutable inputs and any attempted mutation fails.",
     "vendorProvenance": "Every vendor input comes from an exact Git checkout. Upstream packages that publish generated distributions are rebuilt inside their locked checkout before vendor materialization."
   },
   "notes": [
@@ -185,7 +185,7 @@
     "The default bootstrap never resolves moving branch heads; it checks out the exact commits recorded above.",
     "--refresh resolves the newest heads of the currently locked release line and is explicit.",
     "--release X.Y resolves RELX_Y explicitly; it does not silently detect or adopt a new stable release.",
-    "Before every run, materialized vendor files and generated outputs are removed. Existing Git checkouts are reset, cleaned including ignored files, and detached at the exact locked commit.",
+    "Default bootstrap reuses fingerprint-matched dependencies and upstream build outputs, stages vendor materialization before atomic replacement, and keeps the last usable state on failure. --clean requests a cold rebuild.",
     "Repositories without upstream build steps use sparse checkout from the declared source inventory. Build-bearing repositories may set sparseCheckout to false so the exact upstream build receives its complete source workspace instead of a guessed file subset.",
     "The design-codex repository is checked out completely at its locked commit, linked to the pinned project-owned build toolchain, and built through its own workspace scripts.",
     "The DarkMode extension is locked to the same MediaWiki release line. Its ResourceLoader style module is generated from upstream LESS; the thetree theme state is only adapted to the extension-owned html class contract.",

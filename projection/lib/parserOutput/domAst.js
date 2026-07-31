@@ -1,14 +1,13 @@
-/*
- * Tiny HTML fragment AST used by the skin parser-output compiler.
- * It is intentionally local to the skin and does not inspect the mounted DOM.
- */
+/* Standards-based HTML fragment AST used by the parser-output compiler. */
+
+import { parseFragment } from 'parse5';
 
 export const VOID_ELEMENTS = new Set([
   'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta',
   'param', 'source', 'track', 'wbr'
 ]);
 
-const RAW_TEXT_ELEMENTS = new Set(['script', 'style', 'textarea', 'title']);
+const RAW_TEXT_ELEMENTS = new Set(['script', 'style']);
 
 
 export function textNode(value) {
@@ -50,133 +49,28 @@ function escapeAttr(value) {
   }[char]));
 }
 
-function parseAttributes(source) {
-  const attrs = [];
-  let index = 0;
-  while (index < source.length) {
-    while (index < source.length && /\s/.test(source[index])) index += 1;
-    if (index >= source.length) break;
-    let name = '';
-    while (index < source.length && /[^\s=/>]/.test(source[index])) {
-      name += source[index];
-      index += 1;
-    }
-    if (!name) {
-      index += 1;
-      continue;
-    }
-    while (index < source.length && /\s/.test(source[index])) index += 1;
-    let value = '';
-    if (source[index] === '=') {
-      index += 1;
-      while (index < source.length && /\s/.test(source[index])) index += 1;
-      const quote = source[index];
-      if (quote === '"' || quote === "'") {
-        index += 1;
-        while (index < source.length && source[index] !== quote) {
-          value += source[index];
-          index += 1;
-        }
-        if (source[index] === quote) index += 1;
-      } else {
-        while (index < source.length && /[^\s>]/.test(source[index])) {
-          value += source[index];
-          index += 1;
-        }
-      }
-    }
-    attrs.push({ name, value });
-  }
-  return attrs;
-}
-
-function parseTag(token) {
-  if (!token.startsWith('<') || !token.endsWith('>')) return null;
-  if (token.startsWith('<!--')) return { kind: 'comment', content: token.slice(4, -3) };
-  if (/^<!\[CDATA\[/i.test(token)) return { kind: 'text', content: token };
-  if (/^<!/i.test(token) || /^<\?/i.test(token)) return { kind: 'comment', content: token.slice(1, -1) };
-  const closing = /^<\s*\//.test(token);
-  if (closing) {
-    const match = /^<\s*\/\s*([A-Za-z][A-Za-z0-9:-]*)/.exec(token);
-    return match ? { kind: 'close', tagName: match[1].toLowerCase() } : null;
-  }
-  const openMatch = /^<\s*([A-Za-z][A-Za-z0-9:-]*)([\s\S]*?)\s*\/?>$/.exec(token);
-  if (!openMatch) return null;
-  const tagName = openMatch[1].toLowerCase();
-  const attrSource = openMatch[2] || '';
-  const selfClosing = /\/\s*>$/.test(token) || VOID_ELEMENTS.has(tagName);
-  return { kind: 'open', tagName, attrs: parseAttributes(attrSource), selfClosing };
+function fromHtml5Node(node) {
+  if (node.nodeName === '#text') return textNode(node.value);
+  if (node.nodeName === '#comment') return commentNode(node.data);
+  if (!node.tagName) return null;
+  const attrs = (node.attrs || []).map((attr) => ({
+    name: attr.prefix ? `${attr.prefix}:${attr.name}` : attr.name,
+    value: attr.value
+  }));
+  const sourceChildren = node.tagName === 'template' && node.content
+    ? node.content.childNodes || []
+    : node.childNodes || [];
+  return elementNode(
+    node.tagName,
+    attrs,
+    sourceChildren.map(fromHtml5Node).filter(Boolean),
+    VOID_ELEMENTS.has(node.tagName)
+  );
 }
 
 export function parseHtmlFragment(html) {
-  const root = rootNode();
-  const stack = [root];
-  let index = 0;
-
-  while (index < html.length) {
-    const current = stack[stack.length - 1];
-    const rawTag = current.type === 'element' && RAW_TEXT_ELEMENTS.has(current.tagName) ? `</${current.tagName}` : '<';
-    const nextTag = html.indexOf(rawTag, index);
-    if (nextTag === -1) {
-      current.children.push(textNode(html.slice(index)));
-      break;
-    }
-    if (nextTag > index) current.children.push(textNode(html.slice(index, nextTag)));
-
-    if (html.startsWith('<!--', nextTag)) {
-      const end = html.indexOf('-->', nextTag + 4);
-      if (end === -1) {
-        current.children.push(textNode(html.slice(nextTag)));
-        break;
-      }
-      current.children.push(commentNode(html.slice(nextTag + 4, end)));
-      index = end + 3;
-      continue;
-    }
-
-    const close = html.indexOf('>', nextTag + 1);
-    if (close === -1) {
-      current.children.push(textNode(html.slice(nextTag)));
-      break;
-    }
-    const token = html.slice(nextTag, close + 1);
-    const parsed = parseTag(token);
-    if (!parsed) {
-      current.children.push(textNode(token));
-      index = close + 1;
-      continue;
-    }
-
-    if (parsed.kind === 'comment') {
-      current.children.push(commentNode(parsed.content));
-      index = close + 1;
-      continue;
-    }
-    if (parsed.kind === 'text') {
-      current.children.push(textNode(parsed.content));
-      index = close + 1;
-      continue;
-    }
-    if (parsed.kind === 'close') {
-      let found = -1;
-      for (let i = stack.length - 1; i > 0; i -= 1) {
-        if (stack[i].tagName === parsed.tagName) {
-          found = i;
-          break;
-        }
-      }
-      if (found !== -1) stack.length = found;
-      index = close + 1;
-      continue;
-    }
-
-    const node = elementNode(parsed.tagName, parsed.attrs, [], parsed.selfClosing);
-    current.children.push(node);
-    if (!parsed.selfClosing && !VOID_ELEMENTS.has(parsed.tagName)) stack.push(node);
-    index = close + 1;
-  }
-
-  return root;
+  const fragment = parseFragment(String(html || ''));
+  return rootNode((fragment.childNodes || []).map(fromHtml5Node).filter(Boolean));
 }
 
 function serializeAttrs(attrs) {
@@ -187,16 +81,16 @@ function serializeAttrs(attrs) {
     .join('');
 }
 
-export function serializeHtml(node) {
+export function serializeHtml(node, parentTag = null) {
   if (!node) return '';
   if (Array.isArray(node)) return node.map(serializeHtml).join('');
-  if (node.type === 'root') return node.children.map(serializeHtml).join('');
-  if (node.type === 'text') return node.value;
+  if (node.type === 'root') return node.children.map((child) => serializeHtml(child, null)).join('');
+  if (node.type === 'text') return RAW_TEXT_ELEMENTS.has(parentTag) ? node.value : escapeText(node.value);
   if (node.type === 'comment') return `<!--${node.value}-->`;
   if (node.type !== 'element') return '';
   const attrs = serializeAttrs(node.attrs);
   if (node.selfClosing || VOID_ELEMENTS.has(node.tagName)) return `<${node.tagName}${attrs}>`;
-  return `<${node.tagName}${attrs}>${node.children.map(serializeHtml).join('')}</${node.tagName}>`;
+  return `<${node.tagName}${attrs}>${node.children.map((child) => serializeHtml(child, node.tagName)).join('')}</${node.tagName}>`;
 }
 
 export function getAttr(node, name) {

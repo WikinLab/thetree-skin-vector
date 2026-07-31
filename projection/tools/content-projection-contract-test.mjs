@@ -9,10 +9,10 @@ import {
   serializeContentProjectionCookie
 } from '../lib/adapters/thetree-content-projection.js';
 import { RUNTIME_CAPABILITIES } from '../lib/runtime/capabilities.js';
-import { createExtensionRuntimeHost } from '../lib/runtime/createExtensionRuntimeHost.js';
+import { createExtensionRuntimeHost } from '../../lib/runtime/createExtensionRuntimeHost.js';
 import { normalizeLegacyStructuredCategory } from '../lib/legacyCategoryContract.js';
 import { LINK_SEMANTICS } from '../lib/linkSemantics.js';
-import { getClasses, parseHtmlFragment } from '../lib/parserOutput/domAst.js';
+import { getClasses, parseHtmlFragment, serializeHtml } from '../lib/parserOutput/domAst.js';
 import { isInternalWikiLink, transformExternalLink, transformInternalWikiLink } from '../lib/parserOutput/links.js';
 
 function contextWith(enabled) {
@@ -103,5 +103,14 @@ assert.equal(isInternalWikiLink(linkSources[1]), true);
 assert.deepEqual(getClasses(transformInternalWikiLink(linkSources[0], {}, preserveChild)), ['new']);
 assert.deepEqual(getClasses(transformInternalWikiLink(linkSources[1], {}, preserveChild)), ['mw-selflink']);
 assert.deepEqual(getClasses(transformExternalLink(linkSources[2], {}, preserveChild)), ['external', 'text']);
+
+const entityRoundTrip = serializeHtml(parseHtmlFragment('<a href="/x?a=1&amp;b=2">x &amp; y</a>'));
+assert.equal(entityRoundTrip, '<a href="/x?a=1&amp;b=2">x &amp; y</a>');
+const quotedDelimiter = serializeHtml(parseHtmlFragment('<a title="1 > 0" href="/x">x</a>'));
+assert.equal(quotedDelimiter, '<a title="1 &gt; 0" href="/x">x</a>');
+assert.equal(
+  serializeHtml(parseHtmlFragment('<div><p>one<div>two</div>')),
+  '<div><p>one</p><div>two</div></div>'
+);
 
 console.log('checked projection layer contract');

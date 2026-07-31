@@ -52,6 +52,20 @@ and freshness checking.
    package artifact is used as a vendor source.
    License: GPL-2.0-or-later (Codex and design tokens); MIT (Codex Icons).
 
+8. mustache.js
+   Version: 4.2.0
+   License: MIT
+
+9. parse5
+   Version: 8.0.0
+   License: MIT
+
+10. entities (parse5 runtime dependency)
+   Version: 6.0.1
+   License: BSD-2-Clause
+
 The minimal upstream input list, local source-role inventory, source-port correspondence, materialized runtime
 asset list, and generated output list are recorded in ORIGIN-MANIFEST.json. Moving upstream refs are used only through explicit
 bootstrap update modes.
+
+Complete permissive-license notices used by the generated/runtime distribution are in THIRD_PARTY_NOTICES.md.

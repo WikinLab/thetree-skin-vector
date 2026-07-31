@@ -2,7 +2,7 @@
 
 MediaWiki Vector legacy 구조를 더트리 스킨으로 이식한 GPL-2.0-or-later 소스 패키지입니다.
 
-잠긴 MediaWiki·Vector·DarkMode 원본에서 CSS, Vue 컴포넌트, JavaScript와 런타임 자산을 결정론적으로 생성합니다. 더트리와 원본 실행 환경의 차이는 명시적인 host adapter 경계에서만 처리합니다.
+잠긴 MediaWiki·Vector·DarkMode 원본에서 CSS, Vue 컴포넌트, JavaScript와 런타임 자산을 결정론적으로 생성합니다. Mustache는 전체 공식 문법 구현을 사용하고 ResourceLoader 스타일은 논리적 모듈 단위로 조합합니다. 더트리와 원본 실행 환경의 차이는 명시적인 host adapter 경계에서만 처리합니다.
 
 ## 버전 체계
 
@@ -28,6 +28,8 @@ MediaWiki Vector legacy 구조를 더트리 스킨으로 이식한 GPL-2.0-or-la
 따라서 기본 스킨과 프로젝션 배포본은 같은 이력을 공유하고, 별도 저장소를 운영하지 않아도 공통 수정사항을 한 번만 작성할 수 있습니다.
 
 현재 체크아웃한 `projection` 브랜치에서는 프로젝션이 기본으로 켜집니다. 개인 도구의 토글로 원본 본문과 전환할 수 있으며, 프로젝션 전용 구현·포트·계약 검사는 모두 `projection/` 아래에 있습니다.
+
+토글은 `thetree_vector_content_projection` 쿠키와 더트리 로컬 설정을 함께 기록한 뒤 페이지를 다시 불러옵니다. 요청 시점의 SSR에도 선택값을 반영하려면 companion backend plugin이 이 쿠키를 `viewData.thetreeVectorContentProjection`의 `thetree-vector-content-projection/v1` payload로 전달해야 합니다. 플러그인이 없거나 payload가 유효하지 않으면 클라이언트 로컬 설정을 사용하며, 저장값도 없으면 프로젝션을 켠 상태가 기본입니다. 이 transport는 본문 변환 코드와 분리된 선택사항이며 기본 Vector 크롬에는 필요하지 않습니다.
 
 ## DarkMode
 
@@ -63,12 +65,19 @@ npm run check
 `bootstrap`은 다음 원칙을 지킵니다.
 
 1. 정확히 잠긴 커밋만 shallow fetch하여 detached checkout합니다.
-2. 루트와 임시 build-toolchain 의존성은 lock을 입력으로 `npm ci`로 설치합니다.
+2. 루트와 project-owned build-toolchain 의존성은 lock 해시가 바뀔 때만 `npm ci`로 설치합니다.
 3. LESS import closure와 런타임 자산은 잠긴 Git blob에서 물질화합니다.
-4. `ORIGIN-MANIFEST.json`의 단일 생성 그래프를 실행한 뒤 같은 그래프를 check mode로 다시 검증합니다.
-5. `.upstream/`, `vendor/`, 생성 결과와 임시 의존성은 재사용 가능한 소스 이력으로 취급하지 않습니다.
+4. `ORIGIN-MANIFEST.json`의 단일 생성 그래프를 실행한 뒤 독립적인 계약 검사를 수행합니다.
+5. vendor는 staging에서 완성한 뒤 원자적으로 교체하며 실패해도 직전 정상 결과를 먼저 삭제하지 않습니다.
+6. 잠금과 도구 체인 입력이 같으면 checkout, 의존성 및 upstream build 결과를 재사용합니다.
 
 새로 clone한 저장소에는 무시된 vendor 입력과 생성 결과가 없으므로 첫 빌드 전에 `npm run bootstrap`이 필요합니다. upstream lock, 생성 계약 또는 생성기 자체가 바뀐 버전으로 업데이트할 때도 같은 명령을 다시 실행해야 합니다. 단순 애플리케이션 빌드는 이 과정을 대신하지 않습니다. 이미 같은 버전의 bootstrap 결과가 온전히 있는 상태에서 애플리케이션만 다시 빌드할 때는 반복할 필요가 없습니다.
+
+캐시를 사용하지 않고 checkout, 의존성, upstream build와 생성물을 완전히 다시 확인하려면 다음을 사용합니다.
+
+```bash
+npm run bootstrap -- --clean
+```
 
 더트리 관리자 화면의 스킨 업데이트와 빌드는 각각 Git 업데이트와 애플리케이션 번들 빌드만 수행합니다. 따라서 bootstrap이 필요한 업데이트에서는 스킨 checkout 디렉터리에서 위 명령을 먼저 실행한 뒤 관리자 화면에서 스킨을 빌드합니다.
 
@@ -103,7 +112,7 @@ npm run bootstrap -- --release 1.47
 - `UPSTREAM-LOCK.json`: upstream repository와 commit lock
 - `LICENSE`, `NOTICE`: 라이선스와 upstream 고지
 
-`vendor/`, `.upstream/`, `.build-tools/`, `images/`, 생성된 Vue/CSS/JavaScript와 `node_modules/`는 source distribution에 포함하지 않습니다.
+`vendor/`, `.upstream/`, `.build-tools/`, `images/`, 생성된 Vue/CSS/JavaScript와 `node_modules/`는 source distribution에 포함하지 않습니다. permissive-license 구성요소의 전체 고지는 `THIRD_PARTY_NOTICES.md`에 보관합니다.
 
 ## 라이선스
 

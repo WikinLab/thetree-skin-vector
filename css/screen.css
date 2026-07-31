@@ -6,5 +6,4 @@
 @import "./vendor/resource-loader/page-styles.css";
 @import "./vector-adapter.css";
 @import "./host-content.css";
-@import "../projection/css/content-projection.css";
-@import "../projection/css/popups-adapter.css";
+@import "./profile.css";

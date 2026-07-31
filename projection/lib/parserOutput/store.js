@@ -16,8 +16,6 @@
 import { makeLegacyMediaWikiLanguageContext } from '../../../lib/legacyMediaWikiMessages.js';
 import { hasLegacyStructuredCategoriesFromStore } from '../legacyCategoryContract.js';
 import { CONTENT_HTML_FIELDS } from './grammar.js';
-import { stableHtmlSignature } from './signature.js';
-
 const STORE_TRANSFORM_CACHE = new WeakMap();
 
 function mediaWikiLanguageContext(lang, options = {}) {
@@ -93,22 +91,25 @@ function writeTransformedFields(target, path, options, transformHtmlFragment) {
       messages: options.messages || null,
       parserOutputRoot: field === 'contentHtml'
     };
-    const before = target[field];
-    const beforeSignature = stableHtmlSignature(before);
+    const current = target[field];
     const optionsSignature = transformOptionsSignature(fieldOptions);
     const cached = readStoreTransformCache(target, field);
     if (cached
-      && cached.outputSignature === beforeSignature
+      && cached.output === current
       && cached.optionsSignature === optionsSignature) {
       continue;
     }
-    const next = transformHtmlFragment(before, fieldOptions);
-    const afterSignature = stableHtmlSignature(next);
+    // Recompile from the last unmodified source when only projection options
+    // changed. This keeps the transform deterministic and prevents repeatedly
+    // feeding generated markup back into the compiler.
+    const source = cached && cached.output === current ? cached.source : current;
+    const next = transformHtmlFragment(source, fieldOptions);
     writeStoreTransformCache(target, field, {
-      outputSignature: afterSignature,
+      source,
+      output: next,
       optionsSignature
     });
-    if (next !== before) {
+    if (next !== current) {
       target[field] = next;
       result.changed += 1;
       result.changedPaths.push(label);

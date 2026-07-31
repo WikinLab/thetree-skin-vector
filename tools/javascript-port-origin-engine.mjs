@@ -214,11 +214,31 @@ export default __upstreamExports;`;
 }
 
 function renderEsmCopy(source, entry) {
-  const imports = entry.transform?.imports || [];
-  if (imports.length) {
-    throw new Error(`${entry.path} esm-copy does not support rewritten imports.`);
+  const rewrites = entry.transform?.importRewrites || [];
+  const resolvedDependencies = rewrites.map((rewrite) => {
+    if (typeof rewrite?.from !== 'string' || typeof rewrite?.to !== 'string' || !rewrite.to.startsWith('.')) {
+      throw new Error(`${entry.path} has an invalid ESM import rewrite: ${JSON.stringify(rewrite)}`);
+    }
+    return path.posix.normalize(path.posix.join(path.posix.dirname(entry.path), rewrite.to));
+  }).sort();
+  const declaredDependencies = [...(entry.dependencies || [])].sort();
+  if (JSON.stringify(resolvedDependencies) !== JSON.stringify(declaredDependencies)) {
+    throw new Error(`${entry.path} rewritten ESM imports do not match its manifest dependencies.`);
   }
-  return `/* Generated as an exact ESM source copy from ${entry.input}. */\n${normalizeSource(source)}`;
+  let rewritten = source;
+  for (const rewrite of rewrites) {
+    const escaped = rewrite.from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = new RegExp(`((?:from|import)\\s*['"])${escaped}(['"])`, 'g');
+    const matches = [...rewritten.matchAll(pattern)];
+    if (matches.length !== 1) {
+      throw new Error(`${entry.path} expected one static ESM import for ${rewrite.from}, found ${matches.length}.`);
+    }
+    rewritten = rewritten.replace(pattern, `$1${rewrite.to}$2`);
+  }
+  const description = rewrites.length
+    ? 'exact ESM source with declared local module-specifier rewrites'
+    : 'exact ESM source copy';
+  return `/* Generated as an ${description} from ${entry.input}. */\n${normalizeSource(rewritten)}`;
 }
 
 function renderEsmNamedDefault(source, entry) {

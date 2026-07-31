@@ -1,26 +1,26 @@
 /*
  * Host-owned links retain thetree's palette and external-link decorator.
- * ParserOutput links remain under their ResourceLoader contract.
+ * A profile can mark an origin-owned surface to retain its source contract.
  */
 :where(#mw-content-text[data-tt-host-content="1"]) :where(a:not(
-  [data-tt-vector-surface="parser-output"],
-  [data-tt-vector-surface="parser-output"] *
+  [data-tt-origin-content="1"],
+  [data-tt-origin-content="1"] *
 )),
 :where(#mw-content-text[data-tt-host-content="1"]) :where(a:hover:not(
-  [data-tt-vector-surface="parser-output"],
-  [data-tt-vector-surface="parser-output"] *
+  [data-tt-origin-content="1"],
+  [data-tt-origin-content="1"] *
 )),
 :where(#mw-content-text[data-tt-host-content="1"]) :where(a:focus:not(
-  [data-tt-vector-surface="parser-output"],
-  [data-tt-vector-surface="parser-output"] *
+  [data-tt-origin-content="1"],
+  [data-tt-origin-content="1"] *
 )),
 :where(#mw-content-text[data-tt-host-content="1"]) :where(a:active:not(
-  [data-tt-vector-surface="parser-output"],
-  [data-tt-vector-surface="parser-output"] *
+  [data-tt-origin-content="1"],
+  [data-tt-origin-content="1"] *
 )),
 :where(#mw-content-text[data-tt-host-content="1"]) :where(a:visited:not(
-  [data-tt-vector-surface="parser-output"],
-  [data-tt-vector-surface="parser-output"] *
+  [data-tt-origin-content="1"],
+  [data-tt-origin-content="1"] *
 )) {
   text-decoration: none;
 }

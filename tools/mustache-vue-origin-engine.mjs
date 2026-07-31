@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import Mustache from 'mustache';
 
-import { collectMustachePartials, parseMustache } from '../lib/mustacheTemplateEngine.js';
 import { compareCodePoints } from './shared/deterministic.mjs';
 import { walkFiles } from './shared/files.mjs';
 
@@ -64,14 +64,24 @@ function serialize(value) {
   return JSON.stringify(value, null, 2);
 }
 
-function collectPartialGraph(ownerPath, parsedByPath, templateRoot, inputExtension, index) {
+function collectMustachePartials(tokens, result = new Set()) {
+  for (const token of tokens) {
+    if (token[0] === '>') result.add(token[1]);
+    if ((token[0] === '#' || token[0] === '^') && Array.isArray(token[4])) {
+      collectMustachePartials(token[4], result);
+    }
+  }
+  return result;
+}
+
+function collectPartialGraph(ownerPath, templatesByPath, tokensByPath, templateRoot, inputExtension, index) {
   const partials = new Map();
   const visitedPaths = new Set();
   const visitingPaths = new Set();
 
   function directPartialPaths(pathname) {
-    const ast = parsedByPath.get(pathname);
-    return [...collectMustachePartials(ast)].map((partialName) => ({
+    const tokens = tokensByPath.get(pathname);
+    return [...collectMustachePartials(tokens)].map((partialName) => ({
       partialName,
       partialPath: resolvePartial(partialName, pathname, templateRoot, inputExtension, index)
     }));
@@ -82,7 +92,7 @@ function collectPartialGraph(ownerPath, parsedByPath, templateRoot, inputExtensi
     if (visitingPaths.has(pathname)) return;
     visitingPaths.add(pathname);
     for (const { partialName, partialPath } of directPartialPaths(pathname)) {
-      if (!partials.has(partialName)) partials.set(partialName, parsedByPath.get(partialPath));
+      if (!partials.has(partialName)) partials.set(partialName, templatesByPath.get(partialPath));
       visit(partialPath);
     }
     visitingPaths.delete(pathname);
@@ -98,13 +108,13 @@ function collectPartialGraph(ownerPath, parsedByPath, templateRoot, inputExtensi
   };
 }
 
-function generateComponent({ root, nodeId, templateRoot, inputExtension, absolutePath, outputPath, ast, partials }) {
+function generateComponent({ root, nodeId, templateRoot, inputExtension, absolutePath, outputPath, template, partials }) {
   const relativeTemplatePath = toPosix(path.relative(root, absolutePath));
   const relativeUnderTemplateRoot = path.relative(templateRoot, absolutePath);
   const name = componentName(relativeUnderTemplateRoot, inputExtension);
   let runtimeImport = toPosix(path.relative(path.dirname(outputPath), path.join(root, 'lib/mustacheVueRuntime')));
   if (!runtimeImport.startsWith('.')) runtimeImport = `./${runtimeImport}`;
-  return `<!-- @generated origin-node:${nodeId} from ${relativeTemplatePath}; do not hand-edit. -->\n<script>\nimport { createMustacheVueComponent } from ${JSON.stringify(runtimeImport)};\n\nconst ast = ${serialize(ast)};\nconst partials = ${serialize(partials)};\n\nexport default createMustacheVueComponent({\n  name: ${JSON.stringify(name)},\n  ast,\n  partials\n});\n</script>\n`;
+  return `<!-- @generated origin-node:${nodeId} from ${relativeTemplatePath}; do not hand-edit. -->\n<script>\nimport { createMustacheVueComponent } from ${JSON.stringify(runtimeImport)};\n\nconst template = ${serialize(template)};\nconst partials = ${serialize(partials)};\n\nexport default createMustacheVueComponent({\n  name: ${JSON.stringify(name)},\n  template,\n  partials\n});\n</script>\n`;
 }
 
 function isGeneratedMustacheComponent(absolutePath) {
@@ -140,10 +150,17 @@ export function generateMustacheVueComponents({
   if (templateFiles.length === 0) throw new Error('No materialized Mustache templates were found.');
 
   const index = makeTemplateIndex(templateRoot, templateFiles, inputExtension);
-  const parsedByPath = new Map();
+  const templatesByPath = new Map();
+  const tokensByPath = new Map();
   for (const absolutePath of templateFiles) {
     const relativePath = toPosix(path.relative(root, absolutePath));
-    parsedByPath.set(absolutePath, parseMustache(fs.readFileSync(absolutePath, 'utf8'), { sourceName: relativePath }));
+    const template = fs.readFileSync(absolutePath, 'utf8');
+    try {
+      templatesByPath.set(absolutePath, template);
+      tokensByPath.set(absolutePath, Mustache.parse(template));
+    } catch (error) {
+      throw new Error(`${relativePath}: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   const expectedOutputs = new Map();
@@ -151,7 +168,14 @@ export function generateMustacheVueComponents({
   for (const absolutePath of templateFiles) {
     const relativeTemplatePath = path.relative(templateRoot, absolutePath);
     const outputPath = outputPathFor(componentRoot, relativeTemplatePath, inputExtension, outputExtension);
-    const partialGraph = collectPartialGraph(absolutePath, parsedByPath, templateRoot, inputExtension, index);
+    const partialGraph = collectPartialGraph(
+      absolutePath,
+      templatesByPath,
+      tokensByPath,
+      templateRoot,
+      inputExtension,
+      index
+    );
     expectedOutputs.set(outputPath, generateComponent({
       root,
       nodeId,
@@ -159,7 +183,7 @@ export function generateMustacheVueComponents({
       inputExtension,
       absolutePath,
       outputPath,
-      ast: parsedByPath.get(absolutePath),
+      template: templatesByPath.get(absolutePath),
       partials: partialGraph.partials
     }));
     outputRelations.push({

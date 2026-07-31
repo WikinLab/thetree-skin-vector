@@ -17,9 +17,11 @@ const manifestPath = path.join(root, 'ORIGIN-MANIFEST.json');
 const upstreamRoot = path.join(root, '.upstream');
 const vendorRoot = path.join(root, 'vendor');
 const buildToolRoot = path.join(root, '.build-tools');
+const bootstrapStatePath = path.join(buildToolRoot, 'bootstrap-state.json');
 const gitExecutable = process.platform === 'win32' ? 'git.exe' : 'git';
 const checkoutConcurrency = 3;
 const repositoryBlobCache = new Map();
+let forceClean = false;
 
 function fail(message) {
   throw new Error(message);
@@ -112,11 +114,13 @@ function ensureCommand(command, versionArgs = ['--version']) {
 function parseArgs(argv) {
   const parsed = {
     refresh: false,
-    release: null
+    release: null,
+    clean: false
   };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === '--refresh') parsed.refresh = true;
+    else if (arg === '--clean') parsed.clean = true;
     else if (arg === '--release') {
       parsed.release = argv[index + 1] || '';
       index += 1;
@@ -265,7 +269,8 @@ async function checkoutExactCommit(options) {
     commit,
     sparsePaths = [],
     sparseCheckout = true,
-    label = path.basename(checkout)
+    label = path.basename(checkout),
+    preservePaths = []
   } = options;
   if (!/^[0-9a-f]{40}$/.test(commit)) fail(`Invalid locked commit for ${label}: ${commit}.`);
 
@@ -323,7 +328,11 @@ async function checkoutExactCommit(options) {
 
   await runAsync(gitExecutable, ['-C', checkout, 'checkout', '--detach', '--force', commit], { capture: true });
   await runAsync(gitExecutable, ['-C', checkout, 'reset', '--hard', commit], { capture: true });
-  await runAsync(gitExecutable, ['-C', checkout, 'clean', '-ffdx'], { capture: true });
+  const cleanArgs = ['-C', checkout, 'clean', '-ffdx'];
+  if (!forceClean) {
+    for (const preserved of preservePaths) cleanArgs.push('-e', normalizeProjectPath(preserved));
+  }
+  await runAsync(gitExecutable, cleanArgs, { capture: true });
   const head = await runAsync(gitExecutable, ['-C', checkout, 'rev-parse', 'HEAD'], { capture: true });
   if (head !== commit) fail(`Checkout mismatch for ${label}: expected ${commit}, got ${head}.`);
 }
@@ -337,7 +346,12 @@ async function checkoutRepository(repository, manifest) {
     commit: repository.commit,
     sparsePaths: requiredSparsePaths(manifest, repository),
     sparseCheckout: repository.sparseCheckout !== false,
-    label: repository.name
+    label: repository.name,
+    preservePaths: [
+      'node_modules',
+      '.thetree-bootstrap-build.json',
+      ...(repository.build?.outputs || [])
+    ]
   });
   console.log(`[checkout] ${repository.name}: ready in ${((Date.now() - startedAt) / 1000).toFixed(1)}s`);
 }
@@ -423,6 +437,50 @@ function sha256File(file) {
   return sha256Buffer(fs.readFileSync(file));
 }
 
+function bootstrapFingerprint(lock, manifest) {
+  const declared = [
+    'UPSTREAM-LOCK.json',
+    'ORIGIN-MANIFEST.json',
+    'package-lock.json',
+    ...(manifest.sourceInventory?.localFiles || []).map((entry) => entry.path),
+    ...(manifest.sourceInventory?.portedFiles || []).map((entry) => entry.path)
+  ];
+  const hash = crypto.createHash('sha256');
+  hash.update(JSON.stringify(lock));
+  for (const relative of [...new Set(declared)].sort()) {
+    const absolute = path.join(root, relative);
+    if (!fs.existsSync(absolute) || !fs.statSync(absolute).isFile()) continue;
+    hash.update(`\0${normalizeProjectPath(relative)}\0`);
+    hash.update(fs.readFileSync(absolute));
+  }
+  return hash.digest('hex');
+}
+
+function materializedStateComplete(manifest) {
+  for (const inventoryName of ['vendorFiles', 'generatedFiles', 'materializedRuntimeAssets']) {
+    for (const entry of manifest.sourceInventory?.[inventoryName] || []) {
+      const relative = typeof entry === 'string' ? entry : entry.path;
+      if (!relative || !fs.existsSync(path.join(root, relative))) return false;
+    }
+  }
+  return true;
+}
+
+function tryFastBootstrap(lock, manifest) {
+  if (forceClean || !fs.existsSync(bootstrapStatePath) || !materializedStateComplete(manifest)) return false;
+  const state = readJson(bootstrapStatePath);
+  const fingerprint = bootstrapFingerprint(lock, manifest);
+  if (state.fingerprint !== fingerprint) return false;
+  console.log('[bootstrap] inputs and materialized outputs are current; running freshness checks.');
+  try {
+    runNpm(['run', 'check']);
+    return true;
+  } catch {
+    console.log('[bootstrap] cached state failed freshness checks; rebuilding from locked inputs.');
+    return false;
+  }
+}
+
 function runDeclaredCommand(spec, cwd) {
   if (!spec || typeof spec.command !== 'string' || !Array.isArray(spec.args)) {
     fail(`Invalid bootstrap command declaration for ${cwd}.`);
@@ -453,11 +511,24 @@ function installWithLockInvariant(cwd, spec) {
 }
 
 function installRootDependencies() {
-  installWithLockInvariant(root, {
+  const spec = {
     command: 'npm',
     args: ['ci', '--ignore-scripts', '--no-audit', '--no-fund'],
     lockFile: 'package-lock.json'
-  });
+  };
+  const stamp = path.join(root, 'node_modules', '.thetree-bootstrap-lock');
+  const fingerprint = sha256Buffer(Buffer.from(JSON.stringify({
+    lock: sha256File(path.join(root, spec.lockFile)),
+    node: process.versions.node,
+    npm: runNpm(['--version'], { capture: true }),
+    spec
+  })));
+  if (!forceClean && fs.existsSync(stamp) && fs.readFileSync(stamp, 'utf8') === fingerprint) {
+    console.log('[dependencies] root node_modules is current.');
+    return;
+  }
+  installWithLockInvariant(root, spec);
+  fs.writeFileSync(stamp, fingerprint);
 }
 
 function assertRelativeProjectPath(relativePath, label) {
@@ -512,16 +583,30 @@ function prepareBuildToolchain(repository, spec) {
     fail(`Build toolchain lock hash mismatch for ${repository.name}: ${sourceLock}`);
   }
   const toolchain = path.join(buildToolRoot, spec.id);
-  fs.rmSync(toolchain, { recursive: true, force: true });
-  fs.mkdirSync(toolchain, { recursive: true });
-  copyFile(sourcePackage, path.join(toolchain, 'package.json'));
-  copyFile(sourceLock, path.join(toolchain, 'package-lock.json'));
-
   const install = spec.install || {
     command: 'npm',
     args: ['ci', '--ignore-scripts', '--no-audit', '--no-fund']
   };
-  installWithLockInvariant(toolchain, { ...install, lockFile: 'package-lock.json' });
+  const fingerprint = sha256Buffer(Buffer.from(JSON.stringify({
+    package: sha256File(sourcePackage),
+    lock: sha256File(sourceLock),
+    node: process.versions.node,
+    install
+  })));
+  const stamp = path.join(toolchain, '.thetree-bootstrap-lock');
+  const reusable = !forceClean && fs.existsSync(stamp) &&
+    fs.readFileSync(stamp, 'utf8') === fingerprint &&
+    fs.existsSync(path.join(toolchain, 'node_modules'));
+  if (!reusable) {
+    fs.rmSync(toolchain, { recursive: true, force: true });
+    fs.mkdirSync(toolchain, { recursive: true });
+    copyFile(sourcePackage, path.join(toolchain, 'package.json'));
+    copyFile(sourceLock, path.join(toolchain, 'package-lock.json'));
+    installWithLockInvariant(toolchain, { ...install, lockFile: 'package-lock.json' });
+    fs.writeFileSync(stamp, fingerprint);
+  } else {
+    console.log(`[dependencies] build toolchain ${spec.id} is current.`);
+  }
 
   const toolchainNodeModules = path.join(toolchain, 'node_modules');
   if (!fs.existsSync(toolchainNodeModules) || !fs.statSync(toolchainNodeModules).isDirectory()) {
@@ -552,9 +637,20 @@ function buildRepository(repository) {
   const build = repository.build;
   if (!build) return;
   const checkout = repositoryCheckout(repository.name);
-  for (const output of build.outputs || []) {
-    fs.rmSync(path.join(checkout, output), { recursive: true, force: true });
+  const statePath = path.join(checkout, '.thetree-bootstrap-build.json');
+  const fingerprint = sha256Buffer(Buffer.from(JSON.stringify({
+    commit: repository.commit,
+    build,
+    toolchainLock: build.toolchain?.source
+      ? sha256File(path.join(assertRelativeProjectPath(build.toolchain.source, 'build toolchain source'), build.toolchain.lockFile || 'package-lock.json'))
+      : null
+  })));
+  const outputsExist = (build.outputs || []).every((output) => fs.existsSync(path.join(checkout, output)));
+  if (!forceClean && outputsExist && fs.existsSync(statePath) && readJson(statePath).fingerprint === fingerprint) {
+    console.log(`[build] ${repository.name} outputs are current.`);
+    return;
   }
+  for (const output of build.outputs || []) fs.rmSync(path.join(checkout, output), { recursive: true, force: true });
 
   let detachToolchain = () => {};
   try {
@@ -568,18 +664,15 @@ function buildRepository(repository) {
     if (missing.length) {
       fail(`Upstream repository build did not produce its declared outputs for ${repository.name}:\n${missing.map((item) => `- ${item}`).join('\n')}`);
     }
+    writeJson(statePath, { fingerprint });
   } finally {
     detachToolchain();
   }
 }
 
 function buildRepositories(lock) {
-  fs.rmSync(buildToolRoot, { recursive: true, force: true });
-  try {
-    for (const repository of lock.repositories || []) buildRepository(repository);
-  } finally {
-    fs.rmSync(buildToolRoot, { recursive: true, force: true });
-  }
+  fs.mkdirSync(buildToolRoot, { recursive: true });
+  for (const repository of lock.repositories || []) buildRepository(repository);
 }
 
 function cleanRepositoryWorktrees(lock, manifest) {
@@ -587,7 +680,6 @@ function cleanRepositoryWorktrees(lock, manifest) {
     const checkout = repositoryCheckout(repository.name);
     if (!fs.existsSync(checkout)) continue;
     run(gitExecutable, ['-C', checkout, 'reset', '--hard', repository.commit]);
-    run(gitExecutable, ['-C', checkout, 'clean', '-ffdx']);
   }
 }
 
@@ -811,48 +903,20 @@ ${missing.map((item) => `- ${item}`).join('\n')}`);
   }
 }
 
-function generatePopupsResourceModules(lock) {
-  const repository = repositoryByName(lock, 'mediawiki-extensions-Popups');
-  const extension = readJson(path.join(repositoryCheckout(repository.name), 'extension.json'));
-  writeJson(path.join(vendorRoot, 'mediawiki-popups', 'extension-resource-modules.json'), {
-    ResourceModules: extension.ResourceModules || {}
-  });
-}
-
-function generateCiteReferencePreviewModule() {
-  const sourcePath = path.join(vendorRoot, 'mediawiki-cite', 'src/Hooks/ReferencePreviewsHooks.php');
-  const source = fs.readFileSync(sourcePath, 'utf8');
-  const registered = parseFirstPhpArrayAfter(source, '$rl->register(');
-  const module = registered?.['ext.cite.referencePreviews'];
-  if (!module || !Array.isArray(module.styles)) {
-    fail('Unable to derive ext.cite.referencePreviews from ReferencePreviewsHooks.php.');
-  }
-  writeJson(path.join(vendorRoot, 'mediawiki-cite', 'reference-previews-resource-module.json'), {
-    module: 'ext.cite.referencePreviews',
-    ...module
-  });
-}
-
-function generateCiteKoreanMessages(lock) {
-  const repository = repositoryByName(lock, 'mediawiki-extensions-Cite');
-  const source = readJson(path.join(repositoryCheckout(repository.name), 'i18n', 'ko.json'));
-  const moduleContract = readJson(path.join(vendorRoot, 'mediawiki-cite', 'reference-previews-resource-module.json'));
-  const selected = {};
-  for (const key of moduleContract.messages || []) {
-    if (typeof source[key] !== 'string') fail(`Cite Korean message is missing at ${repository.commit}: ${key}`);
-    selected[key] = source[key];
-  }
-  writeJson(path.join(vendorRoot, 'mediawiki-cite', 'i18n', 'ko-reference-previews.json'), selected);
-}
-
 async function materializeVendor(lock, manifest) {
   const vendorEntries = await resolveVendorLessClosure(lock, manifest);
   assertVendorSourcesAvailable(lock, vendorEntries);
-  fs.rmSync(vendorRoot, { recursive: true, force: true });
-  fs.mkdirSync(vendorRoot, { recursive: true });
+  fs.mkdirSync(buildToolRoot, { recursive: true });
+  const staging = path.join(buildToolRoot, 'vendor-staging');
+  const backup = path.join(buildToolRoot, 'vendor-previous');
+  fs.rmSync(staging, { recursive: true, force: true });
+  fs.rmSync(backup, { recursive: true, force: true });
+  fs.mkdirSync(staging, { recursive: true });
 
   for (const entry of vendorEntries) {
-    const destination = path.join(root, entry.path);
+    const relative = path.relative(vendorRoot, path.join(root, entry.path));
+    if (relative.startsWith('..') || path.isAbsolute(relative)) fail(`Vendor output escapes vendor root: ${entry.path}`);
+    const destination = path.join(staging, relative);
     if (entry.status === 'mirrored' || entry.status === 'built') {
       writeBuffer(destination, readVendorSourceBuffer(entry, lock));
     } else if (entry.status === 'adapter' && entry.overlaySource) {
@@ -860,9 +924,52 @@ async function materializeVendor(lock, manifest) {
     }
   }
 
-  generatePopupsResourceModules(lock);
-  generateCiteReferencePreviewModule();
-  generateCiteKoreanMessages(lock);
+  generatePopupsResourceModules(lock, staging);
+  generateCiteReferencePreviewModule(staging);
+  generateCiteKoreanMessages(lock, staging);
+
+  if (fs.existsSync(vendorRoot)) fs.renameSync(vendorRoot, backup);
+  try {
+    fs.renameSync(staging, vendorRoot);
+    fs.rmSync(backup, { recursive: true, force: true });
+  } catch (error) {
+    if (!fs.existsSync(vendorRoot) && fs.existsSync(backup)) fs.renameSync(backup, vendorRoot);
+    throw error;
+  }
+}
+
+function generatePopupsResourceModules(lock, targetVendorRoot) {
+  const repository = repositoryByName(lock, 'mediawiki-extensions-Popups');
+  const extension = readJson(path.join(repositoryCheckout(repository.name), 'extension.json'));
+  writeJson(path.join(targetVendorRoot, 'mediawiki-popups', 'extension-resource-modules.json'), {
+    ResourceModules: extension.ResourceModules || {}
+  });
+}
+
+function generateCiteReferencePreviewModule(targetVendorRoot) {
+  const sourcePath = path.join(targetVendorRoot, 'mediawiki-cite', 'src/Hooks/ReferencePreviewsHooks.php');
+  const source = fs.readFileSync(sourcePath, 'utf8');
+  const registered = parseFirstPhpArrayAfter(source, '$rl->register(');
+  const module = registered?.['ext.cite.referencePreviews'];
+  if (!module || !Array.isArray(module.styles)) {
+    fail('Unable to derive ext.cite.referencePreviews from ReferencePreviewsHooks.php.');
+  }
+  writeJson(path.join(targetVendorRoot, 'mediawiki-cite', 'reference-previews-resource-module.json'), {
+    module: 'ext.cite.referencePreviews',
+    ...module
+  });
+}
+
+function generateCiteKoreanMessages(lock, targetVendorRoot) {
+  const repository = repositoryByName(lock, 'mediawiki-extensions-Cite');
+  const source = readJson(path.join(repositoryCheckout(repository.name), 'i18n', 'ko.json'));
+  const moduleContract = readJson(path.join(targetVendorRoot, 'mediawiki-cite', 'reference-previews-resource-module.json'));
+  const selected = {};
+  for (const key of moduleContract.messages || []) {
+    if (typeof source[key] !== 'string') fail(`Cite Korean message is missing at ${repository.commit}: ${key}`);
+    selected[key] = source[key];
+  }
+  writeJson(path.join(targetVendorRoot, 'mediawiki-cite', 'i18n', 'ko-reference-previews.json'), selected);
 }
 
 function updateManifestForLock(manifest, lock) {
@@ -884,7 +991,7 @@ function updateManifestForLock(manifest, lock) {
 
 function runPipeline() {
   runNpm(['run', 'generate']);
-  runNpm(['run', 'check']);
+  runNpm(['run', 'check:contracts']);
 }
 
 function removeEmptyParents(start, stop) {
@@ -918,6 +1025,7 @@ function cleanMaterializedState(manifest) {
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
+  forceClean = options.clean;
   ensureCommand(gitExecutable);
   runNpm(['--version'], { capture: true });
   runNpm(['run', 'preflight']);
@@ -929,10 +1037,15 @@ async function main() {
   let resolvedManifest = readJson(manifestPath);
 
   try {
-    cleanMaterializedState(resolvedManifest);
+    if (options.clean) cleanMaterializedState(resolvedManifest);
     cleanUndeclaredUpstreamState(originalLock, resolvedManifest);
     installRootDependencies();
     await loadInstalledGenerationTools();
+
+    if (!options.refresh && !options.release && tryFastBootstrap(lock, resolvedManifest)) {
+      console.log(`Bootstrap complete from cache: ${lock.mediaWikiRelease} / ${lock.releaseLine} / snapshot ${lock.snapshotDate}.`);
+      return;
+    }
 
     if (options.refresh) lock = await resolveReleaseCandidate(originalLock, originalLock.mediaWikiRelease);
     else if (options.release) lock = await resolveReleaseCandidate(originalLock, options.release);
@@ -950,11 +1063,12 @@ async function main() {
     await materializeVendor(lock, resolvedManifest);
     cleanRepositoryWorktrees(lock, resolvedManifest);
     runPipeline();
+    fs.mkdirSync(buildToolRoot, { recursive: true });
+    writeJson(bootstrapStatePath, { fingerprint: bootstrapFingerprint(lock, resolvedManifest) });
 
     console.log(`Bootstrap complete: ${lock.mediaWikiRelease} / ${lock.releaseLine} / snapshot ${lock.snapshotDate}.`);
     if (options.refresh || options.release) console.log('The candidate lock and manifest were retained because clone, materialization, generation, and generated-output checks all succeeded.');
   } catch (error) {
-    cleanMaterializedState(resolvedManifest);
     if (options.refresh || options.release) {
       fs.writeFileSync(lockPath, originalLockText);
       fs.writeFileSync(manifestPath, originalManifestText);

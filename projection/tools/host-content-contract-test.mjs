@@ -30,6 +30,10 @@ assert.deepEqual(imports(read('css/screen.css')), [
   './vendor/resource-loader/page-styles.css',
   './vector-adapter.css',
   './host-content.css',
+  './profile.css'
+]);
+
+assert.deepEqual(imports(read('css/profile.css')), [
   '../projection/css/content-projection.css',
   '../projection/css/popups-adapter.css'
 ]);
@@ -45,6 +49,7 @@ assert.ok(foundationRules.length > 0);
 for (const rule of foundationRules) assert.match(rule.selector, /\[data-tt-host-content="1"\]/);
 assert.match(foundationSource, /box-sizing:\s*border-box/);
 assert.doesNotMatch(foundationSource, /!important/);
+assert.doesNotMatch(foundationSource, /data-tt-vector/);
 
 const linksSource = read('css/host-content/links.css');
 const linkRules = rules('css/host-content/links.css');
@@ -58,6 +63,7 @@ assert.equal(linkRules[0].nodes.length, 1);
 assert.equal(linkRules[0].nodes[0].prop, 'text-decoration');
 assert.equal(linkRules[0].nodes[0].value, 'none');
 assert.doesNotMatch(linksSource, /\bcolor\s*:|background|content\s*:|!important/);
+assert.doesNotMatch(linksSource, /data-tt-vector/);
 
 const rawResourceLoaderContract = JSON.parse(read('contracts/resource-loader-origin-contract.json'));
 const resourceLoaderContract = resolveResourceLoaderOriginContract(root, rawResourceLoaderContract);

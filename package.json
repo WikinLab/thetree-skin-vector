@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "thetree-skin-vector",
-  "version": "0.32.1",
+  "version": "0.33.0",
   "description": "MediaWiki Vector Legacy skin for thetree with locked, deterministic ResourceLoader generation",
   "type": "module",
   "packageManager": "npm@10.8.2",
@@ -14,10 +14,17 @@
     "bootstrap": "node tools/bootstrap-upstream.mjs",
     "generate": "node tools/generate-origin.mjs",
     "generate:check": "node tools/generate-origin.mjs --check",
+    "check:mustache": "node tools/mustache-origin-contract-test.mjs",
+    "check:distribution": "node tools/distribution-contract-test.mjs",
     "check:bootstrap-checkout": "node tools/bootstrap-checkout-contract-test.mjs",
     "check:host-content": "node projection/tools/host-content-contract-test.mjs",
     "check:projection": "node projection/tools/content-projection-contract-test.mjs && node projection/tools/popups-model-contract-test.mjs",
-    "check": "npm run generate:check && npm run check:bootstrap-checkout && npm run check:host-content && npm run check:projection"
+    "check:contracts": "npm run check:bootstrap-checkout && npm run check:mustache && npm run check:distribution && npm run check:host-content && npm run check:projection",
+    "check": "npm run generate:check && npm run check:contracts"
+  },
+  "dependencies": {
+    "mustache": "4.2.0",
+    "parse5": "8.0.0"
   },
   "devDependencies": {
     "less": "4.6.7",

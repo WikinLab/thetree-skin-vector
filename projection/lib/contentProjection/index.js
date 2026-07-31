@@ -15,7 +15,7 @@ import { createLegacyParserOutputFragmentNavigationRuntime } from './fragmentNav
 import { createLegacyProjectionSurfaceRuntime } from './mounted.js';
 import { createLegacyParserOutputStoreRuntime } from './storeRuntime.js';
 
-export const CONTENT_PROJECTION_ID = 'vector-legacy';
+export const CONTENT_PROJECTION_ID = 'vector-legacy-projection';
 
 function resolveOptions(optionsSource = {}) {
   const options = typeof optionsSource === 'function' ? optionsSource() : optionsSource;

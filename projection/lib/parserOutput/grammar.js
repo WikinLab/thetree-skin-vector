@@ -14,6 +14,17 @@ export const CONTENT_HTML_FIELDS = Object.freeze([
   'bottomDocument'
 ]);
 
+export const EXTERNAL_SCHEMES = Object.freeze([
+  'http',
+  'https',
+  'ftp',
+  'mailto',
+  'tel',
+  'irc',
+  'ircs',
+  'news'
+]);
+
 function freezeRecord(record = {}) {
   return Object.freeze(Object.fromEntries(
     Object.entries(record).map(([key, value]) => [
@@ -46,7 +57,7 @@ export const PARSER_OUTPUT_FEATURE_MAP = Object.freeze({
       numberAnchor: 'a#s-<section-number>[href="#toc" or href="#tc<comment-id>-toc"]'
     },
     target: {
-      system: 'mediawiki-1.45',
+      system: 'mediawiki-1.46',
       rootClasses: ['mw-heading', 'mw-heading<level>'],
       editSectionClasses: ['mw-editsection', 'mw-editsection-bracket']
     },
@@ -64,7 +75,7 @@ export const PARSER_OUTPUT_FEATURE_MAP = Object.freeze({
       indentClasses: ['toc-indent']
     },
     target: {
-      system: 'mediawiki-1.45',
+      system: 'mediawiki-1.46',
       rootId: 'toc',
       rootClasses: ['toc'],
       itemClasses: ['toclevel-<level>', 'tocsection-<index>']
@@ -83,7 +94,7 @@ export const PARSER_OUTPUT_FEATURE_MAP = Object.freeze({
       missingLinkClasses: ['not-exist']
     },
     target: {
-      system: 'mediawiki-1.45',
+      system: 'mediawiki-1.46',
       rootId: 'catlinks',
       rootClasses: ['catlinks'],
       normalId: 'mw-normal-catlinks',
@@ -103,7 +114,7 @@ export const PARSER_OUTPUT_FEATURE_MAP = Object.freeze({
       wrapperAlignmentClasses: ['table-left', 'table-center', 'table-right']
     },
     target: {
-      system: 'mediawiki-1.45',
+      system: 'mediawiki-1.46',
       rootClasses: ['wikitable']
     },
     transform: { kind: 'table-subtree-to-wikitable' },
@@ -114,7 +125,7 @@ export const PARSER_OUTPUT_FEATURE_MAP = Object.freeze({
   paragraph: freezeFeature({
     id: 'parser-output.paragraph',
     source: { system: 'thetree-namumark', rootClasses: ['wiki-paragraph'] },
-    target: { system: 'mediawiki-1.45', rootTags: ['p'] },
+    target: { system: 'mediawiki-1.46', rootTags: ['p'] },
     transform: { kind: 'block-level-pass-paragraph-flow' },
     equivalence: 'analog',
     loss: []
@@ -127,7 +138,7 @@ export const PARSER_OUTPUT_FEATURE_MAP = Object.freeze({
       rootClasses: ['wiki-list'],
       typeClasses: ['wiki-list-alpha', 'wiki-list-upper-alpha', 'wiki-list-roman', 'wiki-list-upper-roman']
     },
-    target: { system: 'mediawiki-1.45', rootTags: ['ul', 'ol'], typeAttributes: ['a', 'A', 'i', 'I'] },
+    target: { system: 'mediawiki-1.46', rootTags: ['ul', 'ol'], typeAttributes: ['a', 'A', 'i', 'I'] },
     transform: { kind: 'list-class-to-semantic-attributes' },
     equivalence: 'exact',
     loss: []
@@ -136,7 +147,7 @@ export const PARSER_OUTPUT_FEATURE_MAP = Object.freeze({
   indent: freezeFeature({
     id: 'parser-output.indent',
     source: { system: 'thetree-namumark', rootClasses: ['wiki-indent'] },
-    target: { system: 'mediawiki-1.45', rootTags: ['dl'], childTags: ['dd'] },
+    target: { system: 'mediawiki-1.46', rootTags: ['dl'], childTags: ['dd'] },
     transform: { kind: 'indent-wrapper-to-definition-list' },
     equivalence: 'analog',
     loss: []
@@ -145,7 +156,7 @@ export const PARSER_OUTPUT_FEATURE_MAP = Object.freeze({
   blockquote: freezeFeature({
     id: 'parser-output.blockquote',
     source: { system: 'thetree-namumark', rootClasses: ['wiki-quote'] },
-    target: { system: 'mediawiki-1.45', rootTags: ['blockquote'] },
+    target: { system: 'mediawiki-1.46', rootTags: ['blockquote'] },
     transform: { kind: 'remove-host-presentation-class' },
     equivalence: 'exact',
     loss: []
@@ -192,7 +203,7 @@ export const PARSER_OUTPUT_FEATURE_MAP = Object.freeze({
     source: {
       system: 'thetree-namumark',
       rootClasses: LINK_SEMANTICS.external.hostClasses,
-      protocols: ['http', 'https', 'ftp']
+      protocols: EXTERNAL_SCHEMES
     },
     target: { system: 'mediawiki-parser-output', rootClasses: LINK_SEMANTICS.external.emittedClasses },
     transform: { kind: 'external-anchor-to-mediawiki-external-link' },
@@ -274,7 +285,7 @@ export const EXTERNAL_NOFOLLOW_SCHEME_PATTERN = /^(?:https?|ftp):/i;
 export const TREE_FOOTNOTE_TARGET_ID_PATTERN = /^(?:tc\d+-)?fn-.+/i;
 export const TREE_FOOTNOTE_INLINE_ID_PATTERN = /^(?:tc\d+-)?rfn-.+/i;
 export const TREE_REFERENCE_BACKLINK_TEXT_PATTERN = /^\s*(?:\[[^\]\r\n]+\]|↑|\d+(?:\.\d+)*)\s*$/;
-export const EXTERNAL_SCHEME_PATTERN = /^(?:https?|ftp|mailto|tel|ircs?|irc|news):/i;
+export const EXTERNAL_SCHEME_PATTERN = new RegExp(`^(?:${EXTERNAL_SCHEMES.join('|')}):`, 'i');
 export const SECTION_NUMBER_PATTERN = /^\s*(\d+(?:\.\d+)*)(?:\.)?\s*/;
 
 export const ARTICLE_INPUT_GRAMMAR = Object.freeze({
@@ -296,7 +307,7 @@ export const ARTICLE_INPUT_GRAMMAR = Object.freeze({
 });
 
 export const ARTICLE_OUTPUT_GRAMMAR = Object.freeze({
-  heading: 'MediaWiki 1.45 div.mw-heading.mw-headingN containing hN and optional sibling span.mw-editsection',
+  heading: 'MediaWiki 1.46 div.mw-heading.mw-headingN containing hN and optional sibling span.mw-editsection',
   toc: 'MediaWiki legacy Vector #toc .toctitle ul/li.toclevel-* structure',
   category: 'MediaWiki #catlinks > #mw-normal-catlinks > ul > li structure',
   table: 'MediaWiki table.wikitable subtree with source wrapper layout folded into table attributes',

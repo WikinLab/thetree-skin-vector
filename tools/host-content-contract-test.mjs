@@ -29,8 +29,11 @@ function rules(relativePath) {
 assert.deepEqual(imports(read('css/screen.css')), [
   './vendor/resource-loader/page-styles.css',
   './vector-adapter.css',
-  './host-content.css'
+  './host-content.css',
+  './profile.css'
 ]);
+
+assert.equal(read('css/profile.css').trim(), '/* Optional feature profiles add their stylesheet imports at this boundary. */');
 
 assert.deepEqual(imports(read('css/host-content.css')), [
   './host-content/foundation.css',
