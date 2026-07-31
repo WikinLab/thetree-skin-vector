@@ -74,6 +74,7 @@
               "package-metadata",
               "skin-integration",
               "host-adapter",
+              "parser-output-adapter",
               "origin-runtime",
               "generation-tool",
               "generation-contract",
@@ -119,6 +120,52 @@
       "materialization": "one-upstream-file-to-one-vendor-file"
     },
     "vendorFiles": [
+      {
+        "path": "vendor/mediawiki-cite/extension.json",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Cite",
+        "upstreamPath": "extension.json"
+      },
+      {
+        "path": "vendor/mediawiki-cite/i18n/ko-reference-previews.json",
+        "status": "adapter",
+        "bootstrapGenerator": "tools/bootstrap-upstream.mjs"
+      },
+      {
+        "path": "vendor/mediawiki-cite/modules/ext.cite.referencePreviews/createReferenceGateway.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Cite",
+        "upstreamPath": "modules/ext.cite.referencePreviews/createReferenceGateway.js"
+      },
+      {
+        "path": "vendor/mediawiki-cite/modules/ext.cite.referencePreviews/referencePreview.less",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Cite",
+        "upstreamPath": "modules/ext.cite.referencePreviews/referencePreview.less"
+      },
+      {
+        "path": "vendor/mediawiki-cite/modules/ext.cite.styles.less",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Cite",
+        "upstreamPath": "modules/ext.cite.styles.less"
+      },
+      {
+        "path": "vendor/mediawiki-cite/reference-previews-resource-module.json",
+        "status": "adapter",
+        "bootstrapGenerator": "tools/bootstrap-upstream.mjs"
+      },
+      {
+        "path": "vendor/mediawiki-cite/src/Hooks/CiteParserTagHooks.php",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Cite",
+        "upstreamPath": "src/Hooks/CiteParserTagHooks.php"
+      },
+      {
+        "path": "vendor/mediawiki-cite/src/Hooks/ReferencePreviewsHooks.php",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Cite",
+        "upstreamPath": "src/Hooks/ReferencePreviewsHooks.php"
+      },
       {
         "path": "vendor/mediawiki-core/includes/Output/OutputPage.php",
         "status": "mirrored",
@@ -402,6 +449,149 @@
         "upstreamPath": "resources/ext.DarkMode.less"
       },
       {
+        "path": "vendor/mediawiki-popups/extension-resource-modules.json",
+        "status": "adapter",
+        "bootstrapGenerator": "tools/bootstrap-upstream.mjs"
+      },
+      {
+        "path": "vendor/mediawiki-popups/i18n/en.json",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "i18n/en.json"
+      },
+      {
+        "path": "vendor/mediawiki-popups/i18n/ko.json",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "i18n/ko.json"
+      },
+      {
+        "path": "vendor/mediawiki-popups/resources/ext.popups/index.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "resources/ext.popups/index.js"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/constants.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/constants.js"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/preview/model.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/preview/model.js"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/title.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/title.js"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/icons.less",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/icons.less"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/icons/footer-ltr.svg",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/icons/footer-ltr.svg"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/icons/sad-face-ltr.svg",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/icons/sad-face-ltr.svg"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/index.less",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/index.less"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/mixins.less",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/mixins.less"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/renderer.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/renderer.js"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/settingsDialogRenderer.less",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/settingsDialogRenderer.less"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/templates/pagePreview/pagePreview.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/templates/pagePreview/pagePreview.js"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/templates/popup/popup.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/templates/popup/popup.js"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/templates/popup/popup.less",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/templates/popup/popup.less"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/templates/preview/preview.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/templates/preview/preview.js"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/templates/preview/preview.less",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/templates/preview/preview.less"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/templates/settingsDialog/settingsDialog.less",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/templates/settingsDialog/settingsDialog.less"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/templates/templateUtil.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/templates/templateUtil.js"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/thumbnail.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/thumbnail.js"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/ui/variables.less",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/variables.less"
+      },
+      {
+        "path": "vendor/mediawiki-popups/src/wait.js",
+        "status": "mirrored",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/wait.js"
+      },
+      {
         "path": "vendor/mediawiki-vector-legacy/includes/templates/BottomDock.mustache",
         "status": "mirrored",
         "repository": "mediawiki-skins-Vector",
@@ -674,6 +864,120 @@
     ],
     "portedFiles": [
       {
+        "path": "projection/lib/ports/mediawiki-popups/src/constants.js",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/constants.js",
+        "kind": "source-port",
+        "relation": "one-upstream-file-to-one-local-port",
+        "hostDependency": "mediawiki-browser-contract",
+        "automationStatus": "adapter-required",
+        "license": "GPL-2.0-or-later",
+        "modifiedDates": [
+          "2026-07-29",
+          "2026-07-30"
+        ],
+        "differenceClasses": [
+          "upstream-constant-aggregation",
+          "preview-registration-composition"
+        ],
+        "originInputs": [
+          "vendor/mediawiki-popups/src/constants.js"
+        ]
+      },
+      {
+        "path": "projection/lib/ports/mediawiki-popups/src/preview/model.js",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/preview/model.js",
+        "kind": "source-port",
+        "relation": "one-upstream-file-to-one-local-port",
+        "hostDependency": "mediawiki-browser-contract",
+        "automationStatus": "adapter-required",
+        "license": "GPL-2.0-or-later",
+        "modifiedDates": [
+          "2026-07-29",
+          "2026-07-30"
+        ],
+        "differenceClasses": [
+          "gateway-response-adapter",
+          "external-model-validation",
+          "text-extract-adapter"
+        ],
+        "originInputs": [
+          "vendor/mediawiki-popups/src/preview/model.js"
+        ]
+      },
+      {
+        "path": "projection/lib/ports/mediawiki-popups/src/ui/renderer.js",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/renderer.js",
+        "kind": "source-port",
+        "relation": "one-upstream-file-to-one-local-port",
+        "hostDependency": "mediawiki-browser-contract",
+        "automationStatus": "adapter-required",
+        "license": "GPL-2.0-or-later",
+        "modifiedDates": [
+          "2026-07-29",
+          "2026-07-30"
+        ],
+        "differenceClasses": [
+          "dom-runtime-port",
+          "cite-ui-integration"
+        ],
+        "originInputs": [
+          "vendor/mediawiki-popups/src/ui/renderer.js"
+        ]
+      },
+      {
+        "path": "projection/lib/ports/mediawiki-popups/src/ui/templates/index.js",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPaths": [
+          "src/ui/templates/popup/popup.js",
+          "src/ui/templates/pagePreview/pagePreview.js",
+          "src/ui/templates/preview/preview.js",
+          "src/ui/templates/templateUtil.js"
+        ],
+        "kind": "source-port",
+        "relation": "many-upstream-files-to-local-aggregation",
+        "hostDependency": "mediawiki-browser-contract",
+        "automationStatus": "adapter-required",
+        "license": "GPL-2.0-or-later",
+        "modifiedDates": [
+          "2026-07-29",
+          "2026-07-30"
+        ],
+        "differenceClasses": [
+          "upstream-template-aggregation",
+          "cite-template-integration"
+        ],
+        "originInputs": [
+          "vendor/mediawiki-popups/src/ui/templates/popup/popup.js",
+          "vendor/mediawiki-popups/src/ui/templates/pagePreview/pagePreview.js",
+          "vendor/mediawiki-popups/src/ui/templates/preview/preview.js",
+          "vendor/mediawiki-popups/src/ui/templates/templateUtil.js"
+        ]
+      },
+      {
+        "path": "projection/lib/ports/mediawiki-popups/src/ui/thumbnail.js",
+        "repository": "mediawiki-extensions-Popups",
+        "upstreamPath": "src/ui/thumbnail.js",
+        "kind": "source-port",
+        "relation": "one-upstream-file-to-one-local-port",
+        "hostDependency": "mediawiki-browser-contract",
+        "automationStatus": "adapter-required",
+        "license": "GPL-2.0-or-later",
+        "modifiedDates": [
+          "2026-07-29",
+          "2026-07-30"
+        ],
+        "differenceClasses": [
+          "dom-runtime-port",
+          "browser-capability-adapter"
+        ],
+        "originInputs": [
+          "vendor/mediawiki-popups/src/ui/thumbnail.js"
+        ]
+      },
+      {
         "path": "lib/ports/mediawiki-vector-legacy/resources/skins.vector.legacy.js/collapsibleTabs.js",
         "repository": "mediawiki-skins-Vector",
         "upstreamPath": "resources/skins.vector.legacy.js/collapsibleTabs.js",
@@ -745,37 +1049,12 @@
         "hostDependency": "none"
       },
       {
-        "path": ".gitignore",
-        "kind": "package-metadata",
-        "hostDependency": "none"
-      },
-      {
         "path": ".github/workflows/check.yml",
         "kind": "package-metadata",
         "hostDependency": "none"
       },
       {
-        "path": "LICENSE",
-        "kind": "package-metadata",
-        "hostDependency": "none"
-      },
-      {
-        "path": "NOTICE",
-        "kind": "package-metadata",
-        "hostDependency": "none"
-      },
-      {
-        "path": "ORIGIN-MANIFEST.json",
-        "kind": "package-metadata",
-        "hostDependency": "none"
-      },
-      {
-        "path": "README.md",
-        "kind": "package-metadata",
-        "hostDependency": "none"
-      },
-      {
-        "path": "UPSTREAM-LOCK.json",
+        "path": ".gitignore",
         "kind": "package-metadata",
         "hostDependency": "none"
       },
@@ -901,8 +1180,8 @@
       },
       {
         "path": "lib/legacyRawHtmlFragment.js",
-        "kind": "host-adapter",
-        "hostDependency": "thetree-browser-dom"
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
       },
       {
         "path": "lib/legacySearchBoxData.js",
@@ -970,6 +1249,21 @@
         "hostDependency": "none"
       },
       {
+        "path": "LICENSE",
+        "kind": "package-metadata",
+        "hostDependency": "none"
+      },
+      {
+        "path": "NOTICE",
+        "kind": "package-metadata",
+        "hostDependency": "none"
+      },
+      {
+        "path": "ORIGIN-MANIFEST.json",
+        "kind": "package-metadata",
+        "hostDependency": "none"
+      },
+      {
         "path": "package-lock.json",
         "kind": "package-metadata",
         "hostDependency": "none"
@@ -980,8 +1274,263 @@
         "hostDependency": "none"
       },
       {
-        "path": "tools/bootstrap-upstream.mjs",
-        "kind": "generation-tool",
+        "path": "projection/css/content-projection.css",
+        "kind": "skin-integration",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/css/content-projection/parser-output-host.css",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/css/content-projection/source-aliases.css",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/css/content-projection/vector-category.css",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/css/popups-adapter.css",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-content-projection.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/data.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/extension.js",
+        "kind": "skin-integration",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/footerLink.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/gateway.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/layout.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree-browser-events"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/model.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/runtime.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/runtimeListeners.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/runtimeState.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/runtimeTimers.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/settings.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/settingsDialog.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/sourceBridge.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/target.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/adapters/thetree-popups/title.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "projection/lib/contentProjection/categoryData.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/contentProjection/fragmentNavigation.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/contentProjection/index.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/contentProjection/mounted.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/contentProjection/storeRuntime.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/legacyCategoryContract.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/legacyPageContract.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/legacyParserOutputTransform.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/legacySpecialPageContract.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/legacyTextExtractsBridge.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/linkSemantics.js",
+        "kind": "host-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/categories.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/cite.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/domAst.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/editPreviewCategories.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/flow.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/grammar.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/heading.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/links.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/mountedSurface.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/root.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/signature.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/store.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/tables.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/parserOutput/toc.js",
+        "kind": "parser-output-adapter",
+        "hostDependency": "thetree-mediawiki-boundary"
+      },
+      {
+        "path": "projection/lib/runtime/capabilities.js",
+        "kind": "skin-integration",
+        "hostDependency": "none"
+      },
+      {
+        "path": "projection/lib/runtime/createExtensionRuntimeHost.js",
+        "kind": "skin-integration",
+        "hostDependency": "none"
+      },
+      {
+        "path": "projection/tools/content-projection-contract-test.mjs",
+        "kind": "generation-contract",
+        "hostDependency": "none"
+      },
+      {
+        "path": "projection/tools/host-content-contract-test.mjs",
+        "kind": "generation-contract",
+        "hostDependency": "none"
+      },
+      {
+        "path": "projection/tools/popups-model-contract-test.mjs",
+        "kind": "generation-contract",
+        "hostDependency": "none"
+      },
+      {
+        "path": "README.md",
+        "kind": "package-metadata",
         "hostDependency": "none"
       },
       {
@@ -990,13 +1539,18 @@
         "hostDependency": "none"
       },
       {
-        "path": "tools/host-content-contract-test.mjs",
-        "kind": "generation-contract",
+        "path": "tools/bootstrap-upstream.mjs",
+        "kind": "generation-tool",
         "hostDependency": "none"
       },
       {
         "path": "tools/generate-origin.mjs",
         "kind": "generation-tool",
+        "hostDependency": "none"
+      },
+      {
+        "path": "tools/host-content-contract-test.mjs",
+        "kind": "generation-contract",
         "hostDependency": "none"
       },
       {
@@ -1020,17 +1574,17 @@
         "hostDependency": "none"
       },
       {
-        "path": "tools/resource-loader-less.mjs",
+        "path": "tools/resource-loader-contract.mjs",
         "kind": "generation-tool",
         "hostDependency": "none"
       },
       {
-        "path": "tools/resource-loader-origin-schema.mjs",
-        "kind": "generation-contract",
+        "path": "tools/resource-loader-custom-properties.mjs",
+        "kind": "generation-tool",
         "hostDependency": "none"
       },
       {
-        "path": "tools/resource-loader-contract.mjs",
+        "path": "tools/resource-loader-less.mjs",
         "kind": "generation-tool",
         "hostDependency": "none"
       },
@@ -1040,8 +1594,8 @@
         "hostDependency": "none"
       },
       {
-        "path": "tools/resource-loader-custom-properties.mjs",
-        "kind": "generation-tool",
+        "path": "tools/resource-loader-origin-schema.mjs",
+        "kind": "generation-contract",
         "hostDependency": "none"
       },
       {
@@ -1067,6 +1621,11 @@
       {
         "path": "tools/shared/git-blobs.mjs",
         "kind": "generation-tool",
+        "hostDependency": "none"
+      },
+      {
+        "path": "UPSTREAM-LOCK.json",
+        "kind": "package-metadata",
         "hostDependency": "none"
       }
     ],
@@ -1195,6 +1754,26 @@
         "originNode": "resource-loader-css"
       },
       {
+        "path": "css/vendor/resource-loader/ext.cite.referencePreviews.css",
+        "originNode": "resource-loader-css"
+      },
+      {
+        "path": "css/vendor/resource-loader/ext.cite.styles.css",
+        "originNode": "resource-loader-css"
+      },
+      {
+        "path": "css/vendor/resource-loader/ext.popups.main.css",
+        "originNode": "resource-loader-css"
+      },
+      {
+        "path": "css/vendor/resource-loader/icons/footer-ltr.svg",
+        "originNode": "resource-loader-css"
+      },
+      {
+        "path": "css/vendor/resource-loader/icons/sad-face-ltr.svg",
+        "originNode": "resource-loader-css"
+      },
+      {
         "path": "css/vendor/resource-loader/mediawiki-variable-shim.css",
         "originNode": "resource-loader-css"
       },
@@ -1211,6 +1790,43 @@
         "originNode": "resource-loader-css"
       },
       {
+        "path": "projection/lib/generated/mediawiki-popups/src/title.js",
+        "originNode": "javascript-ports",
+        "input": "vendor/mediawiki-popups/src/title.js",
+        "dependencies": [],
+        "transform": {
+          "kind": "esm-copy"
+        }
+      },
+      {
+        "path": "projection/lib/generated/mediawiki-popups/src/ui/renderer.layout.js",
+        "originNode": "javascript-ports",
+        "input": "vendor/mediawiki-popups/src/ui/renderer.js",
+        "dependencies": [
+          "projection/lib/ports/mediawiki-popups/src/constants.js"
+        ],
+        "transform": {
+          "kind": "esm-function-slices",
+          "exportNames": [
+            "createLayout",
+            "hasPointerOnImage",
+            "getClasses",
+            "getClosestYPosition"
+          ],
+          "imports": [
+            {
+              "names": [
+                "landscapePopupWidth",
+                "maxLinkWidthForCenteredPointer",
+                "pointerSize",
+                "portraitPopupWidth"
+              ],
+              "from": "../../../../ports/mediawiki-popups/src/constants.js"
+            }
+          ]
+        }
+      },
+      {
         "path": "lib/generated/mediawiki-vector-legacy/resources/skins.vector.legacy.js/portlets.js",
         "originNode": "javascript-ports",
         "input": "vendor/mediawiki-vector-legacy/resources/skins.vector.legacy.js/portlets.js",
@@ -1221,6 +1837,26 @@
             "main",
             "addPortletHandler"
           ]
+        }
+      },
+      {
+        "path": "projection/lib/ports/mediawiki-cite/modules/ext.cite.referencePreviews/createReferenceGateway.js",
+        "originNode": "javascript-ports",
+        "input": "vendor/mediawiki-cite/modules/ext.cite.referencePreviews/createReferenceGateway.js",
+        "dependencies": [],
+        "transform": {
+          "kind": "commonjs-default-function",
+          "exportName": "createReferenceGateway"
+        }
+      },
+      {
+        "path": "projection/lib/ports/mediawiki-popups/src/wait.js",
+        "originNode": "javascript-ports",
+        "input": "vendor/mediawiki-popups/src/wait.js",
+        "dependencies": [],
+        "transform": {
+          "kind": "esm-named-default",
+          "exportName": "wait"
         }
       }
     ],
@@ -1389,12 +2025,25 @@
   },
   "integration": {
     "schema": 1,
+    "contentProjection": {
+      "schema": 1,
+      "delivery": "branch-layer",
+      "javascriptEntry": "projection/lib/contentProjection/index.js",
+      "javascriptConsumer": "layout.vue",
+      "stylesheetEntry": "projection/css/content-projection.css",
+      "stylesheetConsumer": "css/screen.css",
+      "activationAttribute": "data-tt-content-projection",
+      "activationValue": "vector-legacy",
+      "preferenceAdapter": "projection/lib/adapters/thetree-content-projection.js",
+      "defaultEnabled": true,
+      "serverDataKey": "thetreeVectorContentProjection"
+    },
     "skinVariant": {
       "schema": 1,
       "contract": "contracts/skin-variant-contract.json",
       "runtimeModule": "lib/skinVariant.js",
-      "consumer": "layout.vue",
-      "activationAttribute": "data-tt-skin-variant"
+      "activationAttribute": "data-tt-skin-variant",
+      "consumer": "layout.vue"
     },
     "moduleGraph": {
       "schema": 1,
@@ -1417,15 +2066,17 @@
       "schema": 1,
       "mode": "single-static-entry",
       "selection": "build-time-static",
-      "profile": "vector-legacy",
+      "profile": "vector-legacy-projection",
       "entry": "css/screen.css",
       "originBundle": "css/vendor/resource-loader/page-styles.css",
       "adapterImports": [
         "css/vector-adapter.css",
-        "css/host-content.css"
+        "css/host-content.css",
+        "projection/css/content-projection.css",
+        "projection/css/popups-adapter.css"
       ],
       "resourceLoaderContract": "contracts/resource-loader-origin-contract.json",
-      "hostLimitation": "thetree skin CSS is selected as one static entry. Vector chrome is loaded while the complete host content subtree remains under thetree ownership."
+      "hostLimitation": "thetree skin CSS is selected as one static entry. This branch appends the isolated projection layer to the shared Vector chrome."
     }
   }
 }

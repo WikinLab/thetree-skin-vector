@@ -3,7 +3,7 @@
   "snapshotDate": "2026-07-14",
   "mediaWikiRelease": "1.46",
   "releaseLine": "REL1_46",
-  "policy": "The default bootstrap reproduces the exact 2026-07-14 MediaWiki 1.46 distribution-line snapshot. Every upstream input is obtained from an exact Git commit. MediaWiki core, Vector, and DarkMode use exact REL1_46 commits; Codex styles, design tokens, mixins, and icon-path variables are built from the exact matching design-codex Git tag. Upstream movement occurs only through an explicit bootstrap refresh or release option. The final stylesheet cascade is generated from source-derived MediaWiki queue events and the locked ClientHtml::makeLoad module sorting/source-group partition algorithm rather than a hand-authored CSS import list.",
+  "policy": "The default bootstrap reproduces the exact 2026-07-14 MediaWiki 1.46 distribution-line snapshot. Every upstream input is obtained from an exact Git commit. MediaWiki core, Vector, DarkMode, Popups, Cite, and TextExtracts use exact REL1_46 commits; Codex styles, design tokens, mixins, and icon-path variables are built from the exact matching design-codex Git tag. Upstream movement occurs only through an explicit bootstrap refresh or release option. The final stylesheet cascade is generated from source-derived MediaWiki queue events and the locked ClientHtml::makeLoad module sorting/source-group partition algorithm rather than a hand-authored CSS import list.",
   "repositories": [
     {
       "name": "mediawiki-skins-Vector",
@@ -39,6 +39,43 @@
         "extension.json",
         "i18n/en.json",
         "i18n/ko.json"
+      ]
+    },
+    {
+      "name": "mediawiki-extensions-Popups",
+      "repository": "wikimedia/mediawiki-extensions-Popups",
+      "ref": "REL1_46",
+      "commit": "9b31b9c994809279b045e9bbbfe2c9187267e58a",
+      "license": "GPL-2.0-or-later",
+      "licenseFile": "extension.json:license-name",
+      "scope": "Popups page activation, runtime loader queue, selector, title, model, gateway, renderer, templates, thumbnail, timing, messages, icons, and ResourceLoader style references",
+      "bootstrapPaths": [
+        "extension.json"
+      ]
+    },
+    {
+      "name": "mediawiki-extensions-Cite",
+      "repository": "wikimedia/mediawiki-extensions-Cite",
+      "ref": "REL1_46",
+      "commit": "2a40af56b1e377482197bb22aec25c3107747fad",
+      "license": "GPL-2.0-or-later",
+      "licenseFile": "extension.json:license-name",
+      "scope": "Cite parser-output style enqueue source, ext.cite.styles, ReferencePreviews plugin registration, selector, gateway, renderer, messages, and LESS sources",
+      "bootstrapPaths": [
+        "extension.json",
+        "i18n/ko.json"
+      ]
+    },
+    {
+      "name": "mediawiki-extensions-TextExtracts",
+      "repository": "wikimedia/mediawiki-extensions-TextExtracts",
+      "ref": "REL1_46",
+      "commit": "2c87fa96df9214db22646a3394bf42c30d3b3230",
+      "license": "GPL-2.0-or-later",
+      "licenseFile": "extension.json:license-name",
+      "scope": "TextExtracts first-section and formatter behavior contracts used by the page-preview adapter",
+      "bootstrapPaths": [
+        "extension.json"
       ]
     },
     {
@@ -152,9 +189,9 @@
     "Repositories without upstream build steps use sparse checkout from the declared source inventory. Build-bearing repositories may set sparseCheckout to false so the exact upstream build receives its complete source workspace instead of a guessed file subset.",
     "The design-codex repository is checked out completely at its locked commit, linked to the pinned project-owned build toolchain, and built through its own workspace scripts.",
     "The DarkMode extension is locked to the same MediaWiki release line. Its ResourceLoader style module is generated from upstream LESS; the thetree theme state is only adapted to the extension-owned html class contract.",
-    "The final page stylesheet imports are generated from locked skin-option, BeforePageDisplay, and on-demand module sources. OutputPage enqueue order and ClientHtml::makeLoad sorting/source-group partitioning are both verified against the locked MediaWiki core source; css/screen.css does not hand-order upstream ResourceLoader modules."
+    "The final page stylesheet imports are generated from locked parser-output, skin-option, BeforePageDisplay, runtime loader, extension-attribute, and on-demand module sources. OutputPage enqueue order and ClientHtml::makeLoad sorting/source-group partitioning are both verified against the locked MediaWiki core source; css/screen.css does not hand-order upstream ResourceLoader modules."
   ],
   "invariants": [
-    "The final page stylesheet imports are generated from locked skin-option, BeforePageDisplay, and on-demand module sources. OutputPage enqueue order is verified, then head style modules are serialized by the locked ClientHtml::makeLoad sort and source/group partition algorithm; css/screen.css does not hand-order upstream ResourceLoader modules."
+    "The final page stylesheet imports are generated from locked parser-output, skin-option, BeforePageDisplay, runtime loader, extension-attribute, and on-demand module sources. OutputPage enqueue order is verified, then head style modules are serialized by the locked ClientHtml::makeLoad sort and source/group partition algorithm; css/screen.css does not hand-order upstream ResourceLoader modules."
   ]
 }

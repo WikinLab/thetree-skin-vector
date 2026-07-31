@@ -1,0 +1,18 @@
+/*
+ * the tree host adapter for Popups/ReferencePreviews origin styles.
+ * Dark-mode color and pointer treatment belongs to the generated MediaWiki
+ * ext.DarkMode.styles module. This file retains only host-environment isolation.
+ */
+/*
+ * the tree host element isolation for the Popups settings dialog.
+ * The tree frontend loads a bare label rule before skins:
+ * label { word-break: keep-all; display: inline-block; margin-bottom: .5rem; }
+ *
+ * The display contract for .cdx-checkbox__label belongs to the CodexModule CSS and is left
+ * untouched. This boundary only removes host-owned label values that are absent from the
+ * upstream Popups settingsDialog/Codex surface and otherwise change ResourceLoader layout.
+ */
+#mwe-popups-settings main#mwe-popups-settings-form form label {
+  margin-bottom: 0;
+  word-break: normal;
+}

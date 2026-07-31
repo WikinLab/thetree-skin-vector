@@ -24,6 +24,8 @@ MediaWiki Vector legacy 구조를 더트리 스킨으로 이식한 GPL-2.0-or-la
 
 따라서 기본 스킨과 프로젝션 배포본은 같은 이력을 공유하고, 별도 저장소를 운영하지 않아도 공통 수정사항을 한 번만 작성할 수 있습니다.
 
+현재 체크아웃한 `projection` 브랜치에서는 프로젝션이 기본으로 켜집니다. 개인 도구의 토글로 원본 본문과 전환할 수 있으며, 프로젝션 전용 구현·포트·계약 검사는 모두 `projection/` 아래에 있습니다.
+
 ## DarkMode
 
 어두운 표면은 로컬 `dark.css`가 아니라 잠긴 MediaWiki DarkMode 확장의 LESS, 메시지와 동작 계약에서 생성합니다. 더트리 adapter는 확장의 개인 도구와 문서 class 계약을 host-owned `wiki.theme` 및 `currentTheme` 상태에 연결합니다. MediaWiki API와 cookie persistence는 이식하지 않습니다.
@@ -89,6 +91,7 @@ npm run bootstrap -- --release 1.47
 
 - `layout.vue`, `components/SkinLegacy.vue`: Vector 크롬과 더트리 장착 경계
 - `lib/skinVariant.js`: 런타임 스킨 변형 식별자
+- `projection/`: ParserOutput 변환, Popups·Cite 포트, 전용 CSS와 계약 검사
 - `lib/adapters/`, `css/host-content/`: 더트리 host adapter
 - `lib/ports/`: 원본 실행 환경과의 차이 때문에 수정이 필요한 source port
 - `tools/`: bootstrap, 생성기와 계약 검사

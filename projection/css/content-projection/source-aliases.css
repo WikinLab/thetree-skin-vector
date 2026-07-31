@@ -1,0 +1,141 @@
+/*
+ * The tree parser-output/source-alias adapter.
+ *
+ * MediaWiki core, Cite and Vector origin CSS own emitted parser-output geometry.
+ * This file only handles source aliases that can still appear in parser-output
+ * HTML before/around deterministic compiler output. Raw interface controls are
+ * owned entirely by the tree frontend; edit preview is the only nested parser-output
+ * island inside the interface ownership boundary.
+ */
+
+/* Emitted notice aliases. Standard blockquote flow is owned by MediaWiki/Vector origin CSS. */
+[data-tt-vector-surface="parser-output"] :is(.notice, .warning, .alert, .error) {
+  box-sizing: border-box;
+  margin: 1em 0;
+  padding: 0.6em 0.8em;
+  border: var(--border-width-base) var(--border-style-base) var(--border-color-base);
+  background: var(--background-color-neutral-subtle);
+  color: var(--color-base);
+}
+
+[data-tt-vector-surface="parser-output"] .warning,
+[data-tt-vector-surface="parser-output"] .alert {
+  border-color: var(--border-color-warning);
+  background: var(--background-color-warning-subtle);
+}
+
+[data-tt-vector-surface="parser-output"] .error {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+/* Highlighter aliases. Standard pre/code flow is owned by MediaWiki/Vector origin CSS. */
+[data-tt-vector-surface="parser-output"] :is(.syntaxhighlight, .hljs) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+[data-tt-vector-surface="parser-output"] .syntaxhighlight,
+[data-tt-vector-surface="parser-output"] .hljs {
+  overflow: auto;
+  max-width: 100%;
+  margin: 1em 0;
+  padding: 1em;
+  border: var(--border-width-base) var(--border-style-base) var(--border-color-subtle);
+  background: var(--background-color-neutral-subtle);
+  color: var(--color-base);
+  white-space: pre-wrap;
+}
+
+[data-tt-vector-surface="parser-output"] .syntaxhighlight code,
+[data-tt-vector-surface="parser-output"] .hljs code {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+/* Template box aliases that do not have upstream parser-output source in the tree emitter. */
+[data-tt-vector-surface="parser-output"] .ambox,
+[data-tt-vector-surface="parser-output"] .tt-template-box {
+  box-sizing: border-box;
+  clear: both;
+  margin: 1em 0;
+  padding: 0.6em 0.8em;
+  border: var(--border-width-base) var(--border-style-base) var(--border-color-base);
+  background: var(--background-color-neutral-subtle);
+  color: var(--color-base);
+}
+
+[data-tt-vector-surface="parser-output"] .ambox.warning,
+[data-tt-vector-surface="parser-output"] .ambox.alert {
+  border-color: var(--border-color-warning);
+  background: var(--background-color-warning-subtle);
+}
+
+[data-tt-vector-surface="parser-output"] .ambox.error {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+[data-tt-vector-surface="parser-output"] .infobox {
+  clear: right;
+  float: right;
+  width: 22em;
+  max-width: 100%;
+  margin: 0.5em 0 1em 1em;
+  border: var(--border-width-base) var(--border-style-base) var(--border-color-base);
+  border-collapse: collapse;
+  background: var(--background-color-neutral-subtle);
+  color: var(--color-base);
+  font-size: 90%;
+}
+
+[data-tt-vector-surface="parser-output"] .infobox th,
+[data-tt-vector-surface="parser-output"] .infobox td {
+  padding: 0.25em 0.4em;
+  border: var(--border-width-base) var(--border-style-base) var(--border-color-subtle);
+  vertical-align: top;
+}
+
+[data-tt-vector-surface="parser-output"] .navbox {
+  clear: both;
+  width: 100%;
+  margin: 1em 0;
+  border: var(--border-width-base) var(--border-style-base) var(--border-color-base);
+  border-collapse: collapse;
+  background: var(--background-color-neutral-subtle);
+  color: var(--color-base);
+  font-size: 88%;
+  text-align: center;
+}
+
+/* Source ownership fences for uncompiled source aliases only.
+ * Emitted MediaWiki `a.external.text` is origin-owned and must not match this
+ * block, so selectors are exact source aliases instead of class-substring
+ * probes such as [class*='external']. */
+[data-tt-vector-surface="parser-output"] a:is(.wiki-link-external, .wiki-external, .external-link, .outlink, .green-link) {
+  color: var(--color-link-external, var(--color-link)) !important;
+}
+
+[data-tt-vector-surface="parser-output"] a:is(.wiki-link-external, .wiki-external, .external-link, .outlink, .green-link)::before {
+  content: none !important;
+  display: none !important;
+}
+
+[data-tt-vector-surface="parser-output"] :is(.external-icon, .outlink-icon, .wiki-link-icon, .link-icon, .link-decorator, .external-decorator, .chain-icon)[aria-hidden='true'] {
+  display: none !important;
+}
+
+[data-tt-vector-surface="parser-output"] :is(.fold, .folding, .collapse, .collapsible, .toggle, .section-toggle, .heading-toggle, [data-section-toggle]) + :is(h2, h3, h4, h5, h6),
+[data-tt-vector-surface="parser-output"] :is(h2, h3, h4, h5, h6) > :is(.fold, .folding, .collapse, .collapsible, .toggle, .section-toggle, .heading-toggle, [data-section-toggle]) {
+  display: none;
+}
+
+/* Host global label fence: the tree frontend default.css gives every label
+ * display:inline-block and margin-bottom:.5rem for form controls.  MediaWiki's
+ * TOC toggle label is not a form label; in the upstream browser/ResourceLoader
+ * environment it remains inline with no block margin.  Keep this fence scoped
+ * to the source-port TOC label instead of tuning #toc/.toctitle/ul spacing. */
+[data-tt-vector-surface="parser-output"] #toc .toctogglelabel {
+  display: inline;
+  margin-bottom: 0;
+}

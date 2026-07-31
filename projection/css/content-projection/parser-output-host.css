@@ -1,0 +1,178 @@
+/*
+ * Local content integration only.
+ * Generic MediaWiki element, heading, table and TOC rules now live in
+ * the generated skins.vector.styles.legacy ResourceLoader module. This file should not duplicate upstream core or
+ * Vector rules; keep only the tree/parser compatibility shims that are still
+ * missing upstream class output.
+ */
+/*
+ * Immutable the tree WikiContent host-root boundary.
+ * The frontend renders article HTML inside a `.wiki-content` element before the
+ * compiled MediaWiki parser-output subtree reaches #mw-content-text.  The tree
+ * source renderer uses that root for overflow containment and typography;
+ * Vector legacy expects article blocks to inherit from #mw-content-text.  Keep
+ * the real element for Vue events/runtime refs while neutralizing inherited
+ * typography and overflow side effects from the host root.
+ */
+:is(#mw-content-text[data-tt-vector-surface="parser-output"] > .wiki-content, [data-tt-vector-wiki-content-host="1"]) {
+  all: unset;
+  display: contents;
+}
+
+/* Legacy MediaWiki thumbnail aliases. Keep until the tree renderer emits
+ * figure[typeof~='mw:File/...'] markup compatible with MediaWiki core. */
+[data-tt-vector-surface="parser-output"] .thumb,
+[data-tt-vector-surface="parser-output"] .tright {
+  clear: right;
+  float: right;
+  margin: 0.5em 0 1.3em 1.4em;
+}
+
+[data-tt-vector-surface="parser-output"] .tleft {
+  clear: left;
+  float: left;
+  margin: 0.5em 1.4em 1.3em 0;
+}
+
+[data-tt-vector-surface="parser-output"] .thumbinner {
+  overflow: hidden;
+  padding: 3px;
+  border: 1px solid #c8ccd1;
+  background: #f8f9fa;
+  font-size: 94%;
+  text-align: center;
+}
+
+[data-tt-vector-surface="parser-output"] .thumbcaption {
+  padding: 3px;
+  border: 0;
+  text-align: left;
+  line-height: 1.4;
+}
+
+[data-tt-vector-surface="parser-output"] .center {
+  text-align: center;
+}
+
+
+/*
+ * Host-root boundary for compiler-emitted Cite reference markers.
+ * the tree's global WikiContent stylesheet also targets `.wiki-content sup/sub`;
+ * Vector cannot remove the immutable WikiContent root, so the skin restores the
+ * emitted MediaWiki reference marker to the browser/Cite ownership contract
+ * instead of inheriting the tree source-renderer positioning rules.
+ */
+[data-tt-vector-surface="parser-output"] sup.reference {
+  position: static;
+  top: auto;
+  vertical-align: super;
+  font-size: smaller;
+  line-height: 1;
+}
+
+/*
+ * Built-cascade fence for generic the tree WikiContent source-renderer rules.
+ * Vite bundles frontend `.wiki-content code/pre/hr/sup/sub/img` selectors into
+ * the same cascade as the skin.  Selector matching still reaches compiled
+ * MediaWiki parser-output DOM, so source-artifact selectors stay untouched but
+ * generic element selectors are handed back to MediaWiki core / browser origin
+ * ownership here.
+ */
+[data-tt-vector-surface="parser-output"] pre,
+[data-tt-vector-surface="parser-output"] code,
+[data-tt-vector-surface="parser-output"] .mw-code {
+  background-color: var(--background-color-neutral-subtle);
+  border: var(--border-width-base) var(--border-style-base) var(--border-color-muted);
+}
+
+[data-tt-vector-surface="parser-output"] pre {
+  border-radius: 0;
+}
+
+[data-tt-vector-surface="parser-output"] code {
+  border-radius: var(--border-radius-base);
+  padding: 1px 4px;
+}
+
+[data-tt-vector-surface="parser-output"] pre code {
+  background: initial;
+}
+
+[data-tt-vector-surface="parser-output"] pre,
+[data-tt-vector-surface="parser-output"] .mw-code {
+  padding: 1em;
+  overflow-x: hidden;
+}
+
+[data-tt-vector-surface="parser-output"] sub,
+[data-tt-vector-surface="parser-output"] sup {
+  position: static;
+  font-size: smaller;
+  line-height: 1;
+}
+
+[data-tt-vector-surface="parser-output"] sup {
+  top: auto;
+}
+
+[data-tt-vector-surface="parser-output"] sub {
+  bottom: auto;
+}
+
+[data-tt-vector-surface="parser-output"] sup {
+  vertical-align: super;
+}
+
+[data-tt-vector-surface="parser-output"] sub {
+  vertical-align: sub;
+}
+
+[data-tt-vector-surface="parser-output"] img {
+  display: inline;
+  max-width: none;
+}
+
+/*
+ * Host generic element fences for compiled MediaWiki parser-output.
+ * These are not spacing patches. They restore the upstream MediaWiki/browser
+ * contract for generic elements after the immutable the tree `.wiki-content`
+ * host stylesheet has applied source-renderer rules to the compiled article DOM.
+ */
+[data-tt-vector-surface="parser-output"] hr {
+  height: var(--border-width-base);
+  border: 0;
+  box-sizing: content-box;
+  margin: 0.2em 0;
+}
+
+[data-tt-vector-surface="parser-output"] del {
+  color: canvastext;
+}
+
+[data-tt-vector-surface="parser-output"] del:hover {
+  text-decoration: line-through;
+}
+
+
+[data-tt-vector-surface="parser-output"] label {
+  display: inline;
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+[data-tt-vector-surface="parser-output"] textarea {
+  overflow: visible;
+  resize: both;
+}
+
+[data-tt-vector-surface="parser-output"] strong {
+  font-weight: 700;
+}
+
+[data-tt-vector-surface="parser-output"] em {
+  font-style: italic;
+}
+
+[data-tt-vector-surface="parser-output"] address {
+  margin-bottom: 0;
+}

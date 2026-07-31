@@ -1,0 +1,9 @@
+/*
+ * Vector content projection stylesheet entry.
+ *
+ * Every rule below is gated by projection-owned surface attributes. Removing
+ * this layer from the branch leaves the original Vector chrome and host content.
+ */
+@import "./content-projection/vector-category.css";
+@import "./content-projection/parser-output-host.css";
+@import "./content-projection/source-aliases.css";

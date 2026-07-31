@@ -36,10 +36,42 @@
         id="mw-content-text"
         ref="contentText"
         key="mw-content-text"
+        :class="contentTextClassList"
         data-tt-host-content="1"
+        :data-tt-vector-surface="contentProjection ? rootSurface.type : null"
+        :data-tt-vector-surface-role="contentProjection ? rootSurface.role : null"
+        :data-tt-vector-interface-surface="isInterfaceSurface ? rootSurface.upstreamSurface : null"
+        :data-tt-vector-interface-archetype="isInterfaceSurface ? rootSurface.archetype : null"
+        :data-tt-vector-interface-equivalence="isInterfaceSurface ? featureEquivalence : null"
+        :data-tt-vector-page-contract="contentProjection ? contentSurface.featureMappingId : null"
         :data-tt-host-content-name="adapterContext.pageContract.hostContentName || null"
+        :data-tt-content-projection="contentProjection ? contentProjection.id : null"
       >
         <slot />
+      </div>
+    </template>
+
+    <template #html-categories>
+      <div
+        v-if="legacyCategoryData.hasCategories"
+        id="catlinks"
+        class="catlinks"
+        data-mw="interface"
+        data-tt-vector-category-slot="1"
+        data-tt-vector-catlinks-surface="1"
+      >
+        <div id="mw-normal-catlinks" class="mw-normal-catlinks">
+          <span class="mw-catlinks-label">분류</span>:
+          <ul>
+            <li
+              v-for="category in legacyCategoryData.items"
+              :key="category.id"
+              :class="category.itemClasses"
+            >
+              <nuxt-link :to="category.to" :class="category.linkClasses">{{ category.text }}</nuxt-link>
+            </li>
+          </ul>
+        </div>
       </div>
     </template>
 
@@ -62,10 +94,36 @@ import { getSearchModeFromSubmitEvent, makeSearchSubmitTargetForContext } from '
 import { makeSkinLegacyAdapterState } from '../lib/legacySkinAdapter';
 import { createSkinRuntimeController } from '../lib/runtime/createSkinRuntimeController';
 import { isDarkModeToggleTarget, toggleTheTreeDarkMode } from '../lib/adapters/mediawiki-darkmode';
+import { makeTheTreePopupsRuntimeData } from '../projection/lib/adapters/thetree-popups/data';
+import { createTheTreePopupsExtension } from '../projection/lib/adapters/thetree-popups/extension';
+import {
+  isContentProjectionToggleTarget,
+  toggleTheTreeContentProjection
+} from '../projection/lib/adapters/thetree-content-projection';
+
+const SOURCE_CONTENT_SURFACE = Object.freeze({
+  projection: null,
+  root: Object.freeze({}),
+  isArticle: false,
+  isInterface: false,
+  featureMappingId: null,
+  featureEquivalence: null
+});
+
+const EMPTY_CATEGORY_DATA = Object.freeze({
+  hasCategories: false,
+  items: Object.freeze([])
+});
 
 export default {
   name: 'SkinLegacy',
   mixins: [Common],
+  props: {
+    contentProjection: {
+      type: Object,
+      default: null
+    }
+  },
   components: {
     Alert,
     RawHtmlFragment,
@@ -101,8 +159,47 @@ export default {
     pageTitle() {
       return this.titleData['page-title'] || '';
     },
+    contentSurface() {
+      return this.contentProjection
+        ? this.contentProjection.resolveSurface(this.adapterContext)
+        : SOURCE_CONTENT_SURFACE;
+    },
+    rootSurface() {
+      return this.contentSurface.root;
+    },
+    isInterfaceSurface() {
+      return this.contentSurface.isInterface;
+    },
+    featureEquivalence() {
+      return this.contentSurface.featureEquivalence;
+    },
+    contentDirectionClass() {
+      const direction = this.adapterContext.config?.dir || this.adapterContext.config?.['wiki.dir'] || 'ltr';
+      return direction === 'rtl' ? 'mw-content-rtl' : 'mw-content-ltr';
+    },
+    contentTextClassList() {
+      return {
+        'mw-body-content': !!this.contentProjection,
+        [this.contentDirectionClass]: !!this.contentProjection,
+        'wiki-article': !!this.contentProjection && this.contentSurface.isArticle
+      };
+    },
     skinAdapter() {
       return makeSkinLegacyAdapterState(this.adapterContext);
+    },
+    legacyCategoryData() {
+      return this.contentProjection
+        ? this.contentProjection.makeCategoryData(this.adapterContext)
+        : EMPTY_CATEGORY_DATA;
+    },
+    theTreePopupsRuntimeData() {
+      return makeTheTreePopupsRuntimeData({
+        ...this.adapterContext,
+        pageContract: {
+          ...this.adapterContext.pageContract,
+          isArticle: this.contentSurface.isArticle
+        }
+      });
     },
     siteNoticeHtml() {
       return this.skinAdapter.siteNoticeHtml;
@@ -159,6 +256,13 @@ export default {
         toggleTheTreeDarkMode(this.$store.state);
         return;
       }
+      const projectionToggle = isContentProjectionToggleTarget(event && event.target);
+      if (projectionToggle) {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleTheTreeContentProjection(this.adapterContext, this.$store.state);
+        return;
+      }
       this.onDynamicContentClick(event);
     },
     submitSearch(event) {
@@ -176,9 +280,58 @@ export default {
       const target = makeSearchSubmitTargetForContext(q, mode, this.adapterContext);
       this.$router.push(target);
     },
+    makeContentRuntimeOptions() {
+      const config = this.$store.state.config || {};
+      return {
+        getRoot: () => this.$refs.contentText || null,
+        getProjectionContract: () => this.contentSurface.projection,
+        lang: config.lang || config['wiki.lang'] || 'ko',
+        config,
+        messages: config.mediaWikiMessages || config.mediawikiMessages || config.messages || null
+      };
+    },
+    requestTheTreePageData(path, { signal } = {}) {
+      return this.internalRequest(path, {
+        signal,
+        noProgress: true
+      });
+    },
+    makePopupsRuntimeOptions() {
+      return {
+        theTreeHostCapabilities: {
+          requestPageData: (path, requestOptions) => this.requestTheTreePageData(path, requestOptions)
+        },
+        theTreeSettings: {
+          getLocalConfig: () => {
+            const state = this.$store.state;
+            if (state.localConfigInitialized) return state.localConfig || {};
+            try {
+              return JSON.parse(window.localStorage.getItem('thetree_settings')) || {};
+            } catch (error) {
+              return state.localConfig || {};
+            }
+          },
+          setLocalConfigValue: (key, value) => {
+            this.$store.state.localConfigSetValue(key, value);
+          }
+        }
+      };
+    },
     ensureLegacySkinRuntimeController() {
       if (this.legacySkinRuntimeController) return this.legacySkinRuntimeController;
+      const popupsExtension = createTheTreePopupsExtension({
+        getData: () => this.theTreePopupsRuntimeData,
+        getOptions: () => this.makePopupsRuntimeOptions()
+      });
       this.legacySkinRuntimeController = createSkinRuntimeController({
+        createContentRuntime: this.contentProjection
+          ? (optionsSource) => this.contentProjection.createMountedRuntime(optionsSource)
+          : null,
+        getContentRuntimeOptions: () => this.makeContentRuntimeOptions(),
+        getMediaWikiRuntimeData: () => this.theTreePopupsRuntimeData,
+        getMediaWikiRuntimeOptions: () => this.makePopupsRuntimeOptions(),
+        extensions: [popupsExtension],
+        getCapabilities: () => this.contentProjection?.capabilities || [],
         schedule: (callback) => this.$nextTick(callback)
       });
       return this.legacySkinRuntimeController;

@@ -399,7 +399,7 @@ async function resolveReleaseCandidate(baseLock, releaseVersion) {
   candidate.snapshotDate = new Date().toISOString().slice(0, 10);
   candidate.mediaWikiRelease = releaseVersion;
   candidate.releaseLine = ref;
-  candidate.policy = `MediaWiki core, Vector, and DarkMode use exact commits resolved from ${ref}; Codex styles, design tokens, mixins, and icon-path variables are built from the exact design-codex tag required by that Vector snapshot.`;
+  candidate.policy = `MediaWiki core, Vector, DarkMode, Popups, Cite, and TextExtracts use exact commits resolved from ${ref}; Codex styles, design tokens, mixins, and icon-path variables are built from the exact design-codex tag required by that Vector snapshot.`;
 
   for (const repository of candidate.repositories) {
     if (repository.name === 'design-codex') continue;
@@ -811,6 +811,40 @@ ${missing.map((item) => `- ${item}`).join('\n')}`);
   }
 }
 
+function generatePopupsResourceModules(lock) {
+  const repository = repositoryByName(lock, 'mediawiki-extensions-Popups');
+  const extension = readJson(path.join(repositoryCheckout(repository.name), 'extension.json'));
+  writeJson(path.join(vendorRoot, 'mediawiki-popups', 'extension-resource-modules.json'), {
+    ResourceModules: extension.ResourceModules || {}
+  });
+}
+
+function generateCiteReferencePreviewModule() {
+  const sourcePath = path.join(vendorRoot, 'mediawiki-cite', 'src/Hooks/ReferencePreviewsHooks.php');
+  const source = fs.readFileSync(sourcePath, 'utf8');
+  const registered = parseFirstPhpArrayAfter(source, '$rl->register(');
+  const module = registered?.['ext.cite.referencePreviews'];
+  if (!module || !Array.isArray(module.styles)) {
+    fail('Unable to derive ext.cite.referencePreviews from ReferencePreviewsHooks.php.');
+  }
+  writeJson(path.join(vendorRoot, 'mediawiki-cite', 'reference-previews-resource-module.json'), {
+    module: 'ext.cite.referencePreviews',
+    ...module
+  });
+}
+
+function generateCiteKoreanMessages(lock) {
+  const repository = repositoryByName(lock, 'mediawiki-extensions-Cite');
+  const source = readJson(path.join(repositoryCheckout(repository.name), 'i18n', 'ko.json'));
+  const moduleContract = readJson(path.join(vendorRoot, 'mediawiki-cite', 'reference-previews-resource-module.json'));
+  const selected = {};
+  for (const key of moduleContract.messages || []) {
+    if (typeof source[key] !== 'string') fail(`Cite Korean message is missing at ${repository.commit}: ${key}`);
+    selected[key] = source[key];
+  }
+  writeJson(path.join(vendorRoot, 'mediawiki-cite', 'i18n', 'ko-reference-previews.json'), selected);
+}
+
 async function materializeVendor(lock, manifest) {
   const vendorEntries = await resolveVendorLessClosure(lock, manifest);
   assertVendorSourcesAvailable(lock, vendorEntries);
@@ -825,6 +859,10 @@ async function materializeVendor(lock, manifest) {
       copyFile(path.join(root, entry.overlaySource), destination);
     }
   }
+
+  generatePopupsResourceModules(lock);
+  generateCiteReferencePreviewModule();
+  generateCiteKoreanMessages(lock);
 }
 
 function updateManifestForLock(manifest, lock) {

@@ -19,12 +19,124 @@
     ],
     "runtimeAssetDirectory": "images",
     "hostSurfaces": {
-      "hostContent": "#mw-content-text[data-tt-host-content=\"1\"]"
+      "hostContent": "#mw-content-text[data-tt-host-content=\"1\"]",
+      "hostOwnedContent": ":where(#mw-content-text[data-tt-host-content=\"1\"]:not([data-tt-vector-surface=\"parser-output\"]))",
+      "parserOutput": ":where([data-tt-vector-surface=\"parser-output\"])",
+      "contentLinks": ":where([data-tt-vector-parser-output=\"1\"], [data-tt-vector-catlinks-surface=\"1\"])",
+      "interface": ":where([data-tt-vector-surface=\"interface\"])",
+      "category": ":where([data-tt-vector-catlinks-surface=\"1\"])",
+      "heading": ":where([data-tt-vector-surface=\"parser-output\"], #firstHeading)",
+      "contentCommon": ":where(#bodyContent.vector-body[data-tt-vector-context=\"content-common\"])"
     },
     "ownershipPolicies": {
       "global": {},
       "skin": {
-        "isolateHostContent": true
+        "isolateHostContent": true,
+        "preserveAncestorClassNames": [
+          "vector-body"
+        ],
+        "preserveAncestorIdNames": [
+          "bodyContent"
+        ],
+        "admittedSurface": "parserOutput"
+      },
+      "parser-output": {
+        "scopeSurface": "parserOutput",
+        "rootClassNames": [
+          "mw-body-content",
+          "mw-content-ltr",
+          "mw-content-rtl"
+        ],
+        "ancestorContextClassNames": [
+          "ltr",
+          "rtl",
+          "mw-hide-empty-elt",
+          "skin-theme-clientpref-night",
+          "skin-theme-clientpref-os",
+          "vector-feature-limited-width-clientpref-1",
+          "skin-minerva"
+        ],
+        "ancestorContextTagNames": [
+          "html",
+          "body"
+        ]
+      },
+      "content-links": {
+        "scopeSurface": "contentLinks",
+        "rootClassNames": [
+          "mw-parser-output",
+          "catlinks"
+        ],
+        "rootIdNames": [
+          "catlinks"
+        ],
+        "ancestorContextClassNames": [
+          "ltr",
+          "rtl",
+          "mw-underline-always",
+          "mw-underline-never"
+        ],
+        "ancestorContextTagNames": [
+          "html",
+          "body"
+        ]
+      },
+      "category": {
+        "scopeSurface": "category",
+        "rootClassNames": [
+          "catlinks"
+        ],
+        "rootIdNames": [
+          "catlinks"
+        ],
+        "ancestorContextClassNames": [
+          "ltr",
+          "rtl"
+        ],
+        "ancestorContextTagNames": [
+          "html",
+          "body"
+        ]
+      },
+      "heading": {
+        "scopeSurface": "heading",
+        "rootTagNames": [
+          "h1"
+        ],
+        "ancestorContextClassNames": [
+          "ltr",
+          "rtl"
+        ],
+        "ancestorContextTagNames": [
+          "html",
+          "body"
+        ]
+      },
+      "mixed": {
+        "documentRootRewrites": {
+          "#mw-content-text": "parserOutput"
+        },
+        "isolateHostContent": true,
+        "admittedSurface": "parserOutput"
+      },
+      "content-common": {
+        "scopeSurface": "hostContent",
+        "rootClassNames": [
+          "mw-body-content",
+          "mw-content-ltr",
+          "mw-content-rtl"
+        ],
+        "ancestorContextClassNames": [
+          "ltr",
+          "rtl",
+          "mw-hide-empty-elt",
+          "skin-theme-clientpref-night",
+          "skin-theme-clientpref-os"
+        ],
+        "ancestorContextTagNames": [
+          "html",
+          "body"
+        ]
       }
     },
     "codexManifest": "vendor/mediawiki-core/resources/lib/codex/modules/manifest.json",
@@ -50,6 +162,35 @@
       "sourceBase": "vendor/mediawiki-darkmode/resources",
       "output": "css/vendor/resource-loader/ext.DarkMode.styles.css",
       "ownership": "global"
+    },
+    {
+      "name": "ext.popups.main",
+      "metadata": "vendor/mediawiki-popups/extension-resource-modules.json",
+      "metadataRoot": "ResourceModules",
+      "sourceBase": "vendor/mediawiki-popups",
+      "output": "css/vendor/resource-loader/ext.popups.main.css",
+      "ownership": "global",
+      "assets": [
+        {
+          "source": "vendor/mediawiki-popups/src/ui/icons",
+          "output": "css/vendor/resource-loader/icons"
+        }
+      ]
+    },
+    {
+      "name": "ext.cite.styles",
+      "metadata": "vendor/mediawiki-cite/extension.json",
+      "metadataRoot": "ResourceModules",
+      "sourceBase": "vendor/mediawiki-cite/modules",
+      "output": "css/vendor/resource-loader/ext.cite.styles.css",
+      "ownership": "parser-output"
+    },
+    {
+      "name": "ext.cite.referencePreviews",
+      "metadata": "vendor/mediawiki-cite/reference-previews-resource-module.json",
+      "sourceBase": "vendor/mediawiki-cite/modules/ext.cite.referencePreviews",
+      "output": "css/vendor/resource-loader/ext.cite.referencePreviews.css",
+      "ownership": "mixed"
     }
   ],
   "bundles": [
@@ -66,15 +207,29 @@
     "source": "vendor/mediawiki-core/includes/ResourceLoader/SkinModule.php",
     "coreSourceBase": "vendor/mediawiki-core",
     "disabledFeatures": [
-      "logo",
-      "content-media",
-      "content-links",
-      "interface-category",
-      "content-tables",
-      "i18n-ordered-lists",
-      "i18n-headings"
+      "logo"
     ],
     "ownershipRules": [
+      {
+        "pattern": "^interface-category$",
+        "ownership": "category"
+      },
+      {
+        "pattern": "^i18n-headings$",
+        "ownership": "heading"
+      },
+      {
+        "pattern": "^content-links$",
+        "ownership": "content-links"
+      },
+      {
+        "pattern": "^content-body$",
+        "ownership": "content-common"
+      },
+      {
+        "pattern": "^(content-|toc$|i18n-|interface-edit-section-links$)",
+        "ownership": "parser-output"
+      },
       {
         "pattern": ".*",
         "ownership": "skin"
@@ -87,7 +242,7 @@
   "generatedRoot": "css/vendor",
   "pageStyleQueue": {
     "schema": 2,
-    "profile": "vector-legacy",
+    "profile": "vector-legacy-projection",
     "output": "css/vendor/resource-loader/page-styles.css",
     "phases": [
       {
@@ -96,6 +251,16 @@
           {
             "kind": "generated-output",
             "name": "mediawiki-variable-shim"
+          }
+        ]
+      },
+      {
+        "id": "parser-output-module-styles",
+        "sources": [
+          {
+            "kind": "php-add-module-styles",
+            "file": "vendor/mediawiki-cite/src/Hooks/CiteParserTagHooks.php",
+            "method": "ref"
           }
         ]
       },
@@ -116,6 +281,24 @@
             "kind": "php-add-module-styles",
             "file": "vendor/mediawiki-darkmode/includes/Hooks.php",
             "method": "onBeforePageDisplay"
+          }
+        ]
+      },
+      {
+        "id": "runtime-popups-module-styles",
+        "sources": [
+          {
+            "kind": "extension-attribute-modules",
+            "metadata": "vendor/mediawiki-cite/extension.json",
+            "path": [
+              "attributes",
+              "Popups",
+              "PluginModules"
+            ]
+          },
+          {
+            "kind": "javascript-loader-using",
+            "file": "vendor/mediawiki-popups/resources/ext.popups/index.js"
           }
         ]
       },
@@ -182,8 +365,16 @@
         "id": "head-only-styles",
         "ordering": "mediawiki-clienthtml-make-load",
         "phases": [
+          "parser-output-module-styles",
           "skin-output-module-styles",
           "before-page-display-module-styles"
+        ]
+      },
+      {
+        "id": "runtime-popups",
+        "ordering": "dependency-topological",
+        "phases": [
+          "runtime-popups-module-styles"
         ]
       },
       {
@@ -205,7 +396,26 @@
       "--mw-msg-",
       "--tt-"
     ],
-    "domCompositions": [],
+    "domCompositions": [
+      {
+        "wrapperSource": "vendor/mediawiki-popups/src/ui/templates/popup/popup.js",
+        "wrapperTemplateConstant": "templateHTML",
+        "contentRootClassAssignment": {
+          "target": "container",
+          "property": "className"
+        },
+        "contentTemplates": [
+          {
+            "source": "vendor/mediawiki-popups/src/ui/templates/pagePreview/pagePreview.js",
+            "templateConstant": "templateHTML"
+          },
+          {
+            "source": "vendor/mediawiki-popups/src/ui/templates/preview/preview.js",
+            "templateConstant": "templateHTML"
+          }
+        ]
+      }
+    ],
     "localPublishedLessTokenEntrypoints": [
       "vendor/wikimedia-codex/packages/codex-design-tokens/dist/theme-wikimedia-ui.less"
     ]

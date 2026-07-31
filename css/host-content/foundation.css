@@ -3,12 +3,28 @@
  *
  * thetree skin components are authored against the border-box reset supplied
  * by their normal skin frameworks. Vector does not provide that reset. Apply
- * the missing invariant only to the host-content subtree. :where()
- * keeps the bridge weaker than component-scoped declarations.
+ * the missing invariant only to host-owned elements, leaving MediaWiki
+ * ParserOutput surfaces under their own box-model contract. :where() keeps the
+ * bridge weaker than component-scoped declarations.
  */
-:where(#mw-content-text[data-tt-host-content="1"]),
-:where(#mw-content-text[data-tt-host-content="1"]) :where(*),
-:where(#mw-content-text[data-tt-host-content="1"]) :where(*)::before,
-:where(#mw-content-text[data-tt-host-content="1"]) :where(*)::after {
+:where(#mw-content-text[data-tt-host-content="1"]:not([data-tt-vector-surface="parser-output"])),
+:where(#mw-content-text[data-tt-host-content="1"]) :where(
+  :not(
+    [data-tt-vector-surface="parser-output"],
+    [data-tt-vector-surface="parser-output"] *
+  )
+),
+:where(#mw-content-text[data-tt-host-content="1"]) :where(
+  :not(
+    [data-tt-vector-surface="parser-output"],
+    [data-tt-vector-surface="parser-output"] *
+  )
+)::before,
+:where(#mw-content-text[data-tt-host-content="1"]) :where(
+  :not(
+    [data-tt-vector-surface="parser-output"],
+    [data-tt-vector-surface="parser-output"] *
+  )
+)::after {
   box-sizing: border-box;
 }
