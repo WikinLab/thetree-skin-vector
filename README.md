@@ -8,6 +8,9 @@ MediaWiki Vector legacy 구조를 더트리 스킨으로 이식한 GPL-2.0-or-la
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/)을 사용합니다. 현재 버전은 `package.json`을 기준으로 하며 릴리스 이력은 Git 태그와 GitHub Releases에서 관리합니다.
 
+- `vX.Y.Z`: `main` 기본 배포
+- `projection-vX.Y.Z`: 같은 버전의 `projection` 배포
+
 ## 원본과 호스트 경계
 
 - MediaWiki, Vector, DarkMode와 Codex 입력은 `UPSTREAM-LOCK.json`의 정확한 커밋이나 태그로 잠깁니다.
