@@ -1,5 +1,5 @@
 {
-  "schema": 30,
+  "schema": 31,
   "title": "thetree Vector legacy bootstrap source manifest",
   "upstreamLockFile": "UPSTREAM-LOCK.json",
   "hostLock": {
@@ -169,6 +169,36 @@
         "status": "mirrored",
         "repository": "mediawiki",
         "upstreamPath": "resources/Resources.php"
+      },
+      {
+        "path": "vendor/mediawiki-core/resources/src/jquery/jquery.highlightText.js",
+        "status": "mirrored",
+        "repository": "mediawiki",
+        "upstreamPath": "resources/src/jquery/jquery.highlightText.js"
+      },
+      {
+        "path": "vendor/mediawiki-core/resources/src/jquery/jquery.suggestions.js",
+        "status": "mirrored",
+        "repository": "mediawiki",
+        "upstreamPath": "resources/src/jquery/jquery.suggestions.js"
+      },
+      {
+        "path": "vendor/mediawiki-core/resources/src/jquery/jquery.suggestions.less",
+        "status": "mirrored",
+        "repository": "mediawiki",
+        "upstreamPath": "resources/src/jquery/jquery.suggestions.less"
+      },
+      {
+        "path": "vendor/mediawiki-core/resources/src/mediawiki.searchSuggest/searchSuggest.css",
+        "status": "mirrored",
+        "repository": "mediawiki",
+        "upstreamPath": "resources/src/mediawiki.searchSuggest/searchSuggest.css"
+      },
+      {
+        "path": "vendor/mediawiki-core/resources/src/mediawiki.searchSuggest/searchSuggest.js",
+        "status": "mirrored",
+        "repository": "mediawiki",
+        "upstreamPath": "resources/src/mediawiki.searchSuggest/searchSuggest.js"
       },
       {
         "path": "vendor/mediawiki-core/resources/lib/codex/modules/CdxButton.css",
@@ -677,6 +707,35 @@
     ],
     "portedFiles": [
       {
+        "path": "lib/adapters/thetree-search-suggest.js",
+        "repository": "mediawiki",
+        "upstreamPaths": [
+          "resources/src/jquery/jquery.highlightText.js",
+          "resources/src/jquery/jquery.suggestions.js",
+          "resources/src/mediawiki.searchSuggest/searchSuggest.js"
+        ],
+        "kind": "source-port",
+        "relation": "many-upstream-files-to-one-local-port",
+        "hostDependency": "thetree-browser-dom",
+        "automationStatus": "adapter-required",
+        "license": "GPL-2.0-or-later",
+        "modifiedDates": [
+          "2026-08-01"
+        ],
+        "differenceClasses": [
+          "jquery-to-dom-runtime",
+          "host-search-api",
+          "spa-routing",
+          "ime-input-compatibility",
+          "spa-lifecycle"
+        ],
+        "originInputs": [
+          "vendor/mediawiki-core/resources/src/jquery/jquery.highlightText.js",
+          "vendor/mediawiki-core/resources/src/jquery/jquery.suggestions.js",
+          "vendor/mediawiki-core/resources/src/mediawiki.searchSuggest/searchSuggest.js"
+        ]
+      },
+      {
         "path": "lib/ports/mediawiki-vector-legacy/resources/skins.vector.legacy.js/collapsibleTabs.js",
         "repository": "mediawiki-skins-Vector",
         "upstreamPath": "resources/skins.vector.legacy.js/collapsibleTabs.js",
@@ -861,11 +920,6 @@
         "path": "lib/adapters/thetree-mediawiki/runtime.js",
         "kind": "host-adapter",
         "hostDependency": "thetree"
-      },
-      {
-        "path": "lib/adapters/thetree-search-suggest.js",
-        "kind": "host-adapter",
-        "hostDependency": "thetree-browser-dom"
       },
       {
         "path": "lib/adapters/thetree-settings.js",
@@ -1078,6 +1132,11 @@
         "hostDependency": "none"
       },
       {
+        "path": "tools/search-suggest-origin-contract-test.mjs",
+        "kind": "generation-contract",
+        "hostDependency": "none"
+      },
+      {
         "path": "tools/resource-loader-contract.mjs",
         "kind": "generation-tool",
         "hostDependency": "none"
@@ -1240,6 +1299,14 @@
       },
       {
         "path": "css/vendor/resource-loader/ext.DarkMode.styles.css",
+        "originNode": "resource-loader-css"
+      },
+      {
+        "path": "css/vendor/resource-loader/jquery.suggestions.css",
+        "originNode": "resource-loader-css"
+      },
+      {
+        "path": "css/vendor/resource-loader/mediawiki.searchSuggest.css",
         "originNode": "resource-loader-css"
       },
       {

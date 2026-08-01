@@ -1,5 +1,5 @@
 {
-  "schema": 11,
+  "schema": 12,
   "skinVariantContract": "contracts/skin-variant-contract.json",
   "shared": {
     "importPaths": [
@@ -53,6 +53,24 @@
       "metadataRoot": "ResourceModules",
       "sourceBase": "vendor/mediawiki-darkmode/resources",
       "output": "css/vendor/resource-loader/ext.DarkMode.styles.css",
+      "ownership": "global"
+    },
+    {
+      "name": "jquery.suggestions",
+      "metadata": "vendor/mediawiki-core/resources/Resources.php",
+      "metadataFormat": "php-array",
+      "metadataMarker": "'jquery.suggestions' =>",
+      "sourceBase": "vendor/mediawiki-core",
+      "output": "css/vendor/resource-loader/jquery.suggestions.css",
+      "ownership": "global"
+    },
+    {
+      "name": "mediawiki.searchSuggest",
+      "metadata": "vendor/mediawiki-core/resources/Resources.php",
+      "metadataFormat": "php-array",
+      "metadataMarker": "'mediawiki.searchSuggest' =>",
+      "sourceBase": "vendor/mediawiki-core",
+      "output": "css/vendor/resource-loader/mediawiki.searchSuggest.css",
       "ownership": "global"
     }
   ],
@@ -130,6 +148,11 @@
             "kind": "php-module-definition",
             "file": "vendor/mediawiki-core/resources/Resources.php",
             "module": "codex-styles"
+          },
+          {
+            "kind": "php-module-definition",
+            "file": "vendor/mediawiki-core/resources/Resources.php",
+            "module": "mediawiki.searchSuggest"
           }
         ]
       }
@@ -216,6 +239,9 @@
   },
   "messageCatalog": {
     "output": "lib/generated/mediawiki-less-messages.json",
+    "includeMessages": [
+      "searchsuggest-containing"
+    ],
     "languages": {
       "en": {
         "source": "vendor/mediawiki-core/languages/i18n/en.json"

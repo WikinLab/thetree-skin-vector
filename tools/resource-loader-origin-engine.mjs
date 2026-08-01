@@ -28,6 +28,21 @@ function moduleMap(document, rootKey) {
   return rootKey ? document[rootKey] || {} : document;
 }
 
+function readModuleDefinition(root, record) {
+  if (!record?.metadata || !record?.name) return null;
+  if (record.metadataFormat === 'php-array') {
+    const source = fs.readFileSync(path.join(root, record.metadata), 'utf8');
+    const marker = record.metadataMarker || `'${record.name}' =>`;
+    return parseFirstPhpArrayAfter(source, marker);
+  }
+  if (record.metadataFormat && record.metadataFormat !== 'json') {
+    throw new Error(`Unsupported ResourceLoader metadata format: ${record.metadataFormat}`);
+  }
+  const metadata = readJson(root, record.metadata);
+  const modules = moduleMap(metadata, record.metadataRoot);
+  return modules[record.name] || (metadata.module === record.name ? metadata : null);
+}
+
 function normalizeStyles(styles) {
   if (typeof styles === 'string') return [{ path: styles }];
   if (Array.isArray(styles)) return styles.map((item) => typeof item === 'string' ? { path: item } : item);
@@ -318,9 +333,7 @@ async function compileEntry(root, contract, moduleName, output, entry, lessMessa
 }
 
 async function compileModule(root, contract, record) {
-  const metadata = readJson(root, record.metadata);
-  const modules = moduleMap(metadata, record.metadataRoot);
-  const module = modules[record.name] || (metadata.module === record.name ? metadata : null);
+  const module = readModuleDefinition(root, record);
   if (!module) throw new Error(`ResourceLoader module ${record.name} is absent from ${record.metadata}`);
 
   const entries = [];
@@ -498,10 +511,7 @@ function valueAtSegments(value, segments, description) {
 }
 
 function moduleDefinition(root, record) {
-  if (!record?.metadata || !record?.name) return null;
-  const metadata = readJson(root, record.metadata);
-  const modules = moduleMap(metadata, record.metadataRoot);
-  return modules[record.name] || (metadata.module === record.name ? metadata : null);
+  return readModuleDefinition(root, record);
 }
 
 function resourceOutputRecords(contract) {
@@ -835,9 +845,13 @@ export async function generateResourceLoaderOrigins({ root, contractPath, check 
   }
   if (contract.messageCatalog) {
     expected.add(posix(contract.messageCatalog.output));
+    const messageKeys = new Set([
+      ...lessMessages,
+      ...asArray(contract.messageCatalog.includeMessages).filter((key) => typeof key === 'string')
+    ]);
     pending.push({
       output: contract.messageCatalog.output,
-      content: compileMessageCatalog(root, contract, [...lessMessages].sort())
+      content: compileMessageCatalog(root, contract, [...messageKeys].sort())
     });
   }
   const pageStyleQueue = compilePageStyleQueue(root, contract);

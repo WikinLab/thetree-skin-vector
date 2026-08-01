@@ -72,6 +72,7 @@ import { makeSkinLegacyData } from '../lib/legacySkinData';
 import { buildLegacyTitleHeadingData } from '../lib/legacyTitleData';
 import { getSearchModeFromSubmitEvent, makeSearchSubmitTargetForContext } from '../lib/legacySearchSubmit';
 import { makeSkinLegacyAdapterState } from '../lib/legacySkinAdapter';
+import { makeLegacyMediaWikiLanguageContext } from '../lib/legacyMediaWikiMessages';
 import { isDarkModeToggleTarget, toggleTheTreeDarkMode } from '../lib/adapters/mediawiki-darkmode';
 import { createTheTreeSearchSuggestRuntime } from '../lib/adapters/thetree-search-suggest';
 import { isSettingsToggleTarget } from '../lib/adapters/thetree-settings';
@@ -216,13 +217,23 @@ export default {
           pageReady: {
             loadSearchModule: (moduleName) => {
               if (moduleName !== 'mediawiki.searchSuggest') return null;
+              const config = this.adapterContext.config || {};
+              const language = makeLegacyMediaWikiLanguageContext({
+                lang: config.lang || config['wiki.lang'] || 'ko',
+                dir: config.dir || config['wiki.dir'] || 'ltr',
+                config
+              });
+              const searchTarget = (query) => ({ path: '/Search', query: { q: query } });
               const runtime = createTheTreeSearchSuggestRuntime({
                 requestSuggestions: (query, signal) => this.internalRequest(
                   `/Complete?q=${encodeURIComponent(query)}`,
                   { signal, noProgress: true }
                 ),
                 navigateDocument: (title) => this.$router.push(this.doc_action_link(title, 'w')),
-                navigateSearch: (query) => this.$router.push({ path: '/Search', query: { q: query } })
+                navigateSearch: (query) => this.$router.push(searchTarget(query)),
+                documentHref: (title) => this.$router.resolve(this.doc_action_link(title, 'w')).href,
+                searchHref: (query) => this.$router.resolve(searchTarget(query)).href,
+                specialLabel: language.resourceLoaderMessages['searchsuggest-containing']
               });
               runtime.init();
               return runtime;
