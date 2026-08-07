@@ -25,7 +25,7 @@ the tree용 MediaWiki Vector 레거시 스킨입니다.
 1. the tree에서 **관리자 → 개발자 설정**으로 이동합니다.
 2. **스킨** 항목에 다음 내용을 입력합니다.
    - 이름: `vector`
-   - URL: `https://github.com/Lumina0306/thetree-skin-vector`
+   - URL: `https://github.com/WikinLab/thetree-skin-vector`
 3. **추가**를 누릅니다.
 4. 스킨 설치 디렉터리에서 다음 명령을 실행합니다.
 
