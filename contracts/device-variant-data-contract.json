@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "pluginName": "thetree-plugin-vector",
+  "installDirectory": "plugins/thetree-plugin-vector",
+  "skinName": "vector",
+  "publicDataKey": "thetreeVectorDevice",
+  "dataSchema": "thetree-vector-device/v1",
+  "transport": "skinData-page-data",
+  "desktopVariant": "vector",
+  "mobileVariant": "minerva",
+  "fallbackVariant": "vector"
+}

@@ -3,6 +3,7 @@
   "family": "vector",
   "id": "vector-legacy",
   "upstreamSkinName": "vector",
+  "composableEntry": "components/VectorVariantLayout.vue",
   "upstream": {
     "lessVariables": "vendor/mediawiki-vector-legacy/resources/mediawiki.less/vector/mediawiki.skin.variables.less",
     "elementsSource": "vendor/mediawiki-core/resources/src/mediawiki.skinning/elements.less",

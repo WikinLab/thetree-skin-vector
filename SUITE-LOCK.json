@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "mode": "vector-minerva",
+  "minerva": {
+    "repository": "WikinLab/thetree-skin-minerva",
+    "ref": "main",
+    "commit": "b180504f463986121c19c33e6fea05478df2cc59",
+    "packageVersion": "0.2.0",
+    "mediaWikiRelease": "1.46",
+    "entry": "layout.vue",
+    "license": "GPL-2.0-or-later"
+  }
+}

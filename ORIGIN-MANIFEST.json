@@ -59,6 +59,7 @@
       "ignoredRoots": [
         ".build-tools",
         ".git",
+        ".skin-suite",
         ".test-dist",
         ".upstream",
         "node_modules",
@@ -842,6 +843,11 @@
         "hostDependency": "none"
       },
       {
+        "path": "SUITE-LOCK.json",
+        "kind": "package-metadata",
+        "hostDependency": "none"
+      },
+      {
         "path": "UPSTREAM-LOCK.json",
         "kind": "package-metadata",
         "hostDependency": "none"
@@ -849,6 +855,16 @@
       {
         "path": "components/SkinLegacy.vue",
         "kind": "skin-integration",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "components/VectorVariantLayout.vue",
+        "kind": "skin-integration",
+        "hostDependency": "thetree"
+      },
+      {
+        "path": "contracts/device-variant-data-contract.json",
+        "kind": "generation-contract",
         "hostDependency": "thetree"
       },
       {
@@ -1122,6 +1138,11 @@
         "hostDependency": "none"
       },
       {
+        "path": "tools/prepare-vector-suite.mjs",
+        "kind": "generation-tool",
+        "hostDependency": "none"
+      },
+      {
         "path": "tools/resource-loader-less.mjs",
         "kind": "generation-tool",
         "hostDependency": "none"
@@ -1135,6 +1156,21 @@
         "path": "tools/search-suggest-origin-contract-test.mjs",
         "kind": "generation-contract",
         "hostDependency": "none"
+      },
+      {
+        "path": "tools/skin-variant-contract-test.mjs",
+        "kind": "generation-contract",
+        "hostDependency": "none"
+      },
+      {
+        "path": "tools/vector-suite-contract-test.mjs",
+        "kind": "generation-contract",
+        "hostDependency": "none"
+      },
+      {
+        "path": "tools/vector-suite.mjs",
+        "kind": "generation-tool",
+        "hostDependency": "thetree"
       },
       {
         "path": "tools/resource-loader-contract.mjs",
@@ -1508,14 +1544,26 @@
       "schema": 1,
       "contract": "contracts/skin-variant-contract.json",
       "runtimeModule": "lib/skinVariant.js",
-      "consumer": "layout.vue",
+      "consumer": "components/VectorVariantLayout.vue",
       "activationAttribute": "data-tt-skin-variant"
+    },
+    "deviceSuite": {
+      "schema": 1,
+      "lock": "SUITE-LOCK.json",
+      "selectionData": "page.data.thetreeVectorDevice",
+      "selectionSchema": "thetree-vector-device/v1",
+      "dispatcher": "layout.vue",
+      "desktopEntry": "components/VectorVariantLayout.vue",
+      "mobileDependency": "WikinLab/thetree-skin-minerva",
+      "devicePlugin": "external-backend-plugin",
+      "delivery": "variant-specific-dynamic-import"
     },
     "moduleGraph": {
       "schema": 1,
       "ignoredRoots": [
         ".build-tools",
         ".git",
+        ".skin-suite",
         ".test-dist",
         ".upstream",
         "node_modules",

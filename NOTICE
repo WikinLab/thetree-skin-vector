@@ -34,15 +34,23 @@ and freshness checking.
    package artifact is used as a vendor source.
    License: GPL-2.0-or-later (Codex and design tokens); MIT (Codex Icons).
 
-5. mustache.js
+5. thetree-skin-minerva composite variant source
+   Repository: WikinLab/thetree-skin-minerva
+   Ref: main
+   Commit: b180504f463986121c19c33e6fea05478df2cc59
+   Bootstrap role: fetched only for the default Vector + Minerva suite build;
+   it is not included in the Vector source archive.
+   License: GPL-2.0-or-later
+
+6. mustache.js
    Version: 4.2.0
    License: MIT
 
-6. parse5
+7. parse5
    Version: 8.0.0
    License: MIT
 
-7. entities (parse5 runtime dependency)
+8. entities (parse5 runtime dependency)
    Version: 6.0.1
    License: BSD-2-Clause
 
