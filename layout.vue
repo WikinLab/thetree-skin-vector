@@ -18,15 +18,15 @@ if (loadMinervaVariant) {
 }
 
 export default {
-  name: 'TheTreeVectorDeviceDispatcher',
+  name: 'TheTreeMobileFrontendDispatcher',
   components,
   computed: {
-    deviceData() {
-      return this.$store.state.page?.data?.thetreeVectorDevice || {};
+    mobileFrontendData() {
+      return this.$store.state.page?.data?.thetreeMobileFrontend || {};
     },
     requestedVariant() {
-      if (this.deviceData.schema !== 'thetree-vector-device/v1') return 'vector';
-      return this.deviceData.variant === 'minerva' ? 'minerva' : 'vector';
+      if (this.mobileFrontendData.schema !== 'thetree-mobilefrontend/v1') return 'vector';
+      return this.mobileFrontendData.mode === 'mobile' ? 'minerva' : 'vector';
     },
     activeVariantComponent() {
       if (

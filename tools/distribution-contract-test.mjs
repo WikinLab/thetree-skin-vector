@@ -20,7 +20,8 @@ for (const repository of lock.repositories || []) {
 }
 
 assert.match(notice, new RegExp(suiteLock.minerva.repository.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-assert.match(notice, new RegExp(suiteLock.minerva.commit));
+assert.match(notice, new RegExp(`Ref:\\s+${suiteLock.minerva.ref}`));
+assert.match(notice, new RegExp(suiteLock.minerva.resolution));
 assert.match(notice, new RegExp(suiteLock.minerva.license.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 
 const declaredRepositories = [...notice.matchAll(/^\s+Repository:\s+(\S+)$/gm)].map((match) => match[1]);

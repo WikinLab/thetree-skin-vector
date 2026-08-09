@@ -124,12 +124,15 @@ export function renderVariantLoader(mode, minervaEntry = 'layout.vue') {
   ].join('\n');
 }
 
-function activateSuiteMode(mode, lock = readJson(suiteLockPath)) {
+function activateSuiteMode(mode, lock = readJson(suiteLockPath), minervaState = null) {
   writeFileAtomic(loaderPath, renderVariantLoader(mode, lock.minerva.entry));
   writeJsonAtomic(statePath, {
-    schema: 1,
+    schema: 2,
     mode,
-    minervaCommit: mode === 'vector-minerva' ? lock.minerva.commit : null,
+    minervaRepository: mode === 'vector-minerva' ? lock.minerva.repository : null,
+    minervaRef: mode === 'vector-minerva' ? lock.minerva.ref : null,
+    minervaCommit: mode === 'vector-minerva' ? minervaState?.commit || null : null,
+    minervaPackageVersion: mode === 'vector-minerva' ? minervaState?.packageVersion || null : null,
     minervaEntry: mode === 'vector-minerva' ? lock.minerva.entry : null
   });
 }
@@ -159,17 +162,39 @@ function localMinervaSource(commit) {
   return result.status === 0 ? candidate : null;
 }
 
+export function parseRemoteRef(output, ref) {
+  const expected = `refs/heads/${ref}`;
+  for (const line of String(output || '').split(/\r?\n/)) {
+    const [commit, remoteRef] = line.trim().split(/\s+/);
+    if (remoteRef === expected && /^[0-9a-f]{40}$/.test(commit || '')) return commit;
+  }
+  fail(`Unable to resolve latest commit for ${expected}.`);
+}
+
+export function resolveLatestMinervaCommit(minervaLock) {
+  if (minervaLock.resolution !== 'latest-ref-head') {
+    fail(`Unsupported Minerva resolution: ${minervaLock.resolution}`);
+  }
+  const repositoryUrl = `https://github.com/${minervaLock.repository}.git`;
+  const output = run(gitExecutable, [
+    'ls-remote', '--exit-code', repositoryUrl, `refs/heads/${minervaLock.ref}`
+  ], { capture: true });
+  return parseRemoteRef(output, minervaLock.ref);
+}
+
 async function prepareMinerva(lock, clean) {
   if (clean && fs.existsSync(minervaRoot)) {
     fs.rmSync(assertManagedSuitePath(minervaRoot), { recursive: true, force: true });
   }
-  const localSource = localMinervaSource(lock.minerva.commit);
+  const commit = resolveLatestMinervaCommit(lock.minerva);
+  const localSource = localMinervaSource(commit);
   const repositoryUrl = localSource || `https://github.com/${lock.minerva.repository}.git`;
+  console.log(`[suite] Minerva ${lock.minerva.ref} resolved to ${commit}.`);
   console.log(`[suite] Minerva source: ${localSource ? `local ${localSource}` : lock.minerva.repository}`);
   await checkoutExactCommit({
     checkout: minervaRoot,
     url: repositoryUrl,
-    commit: lock.minerva.commit,
+    commit,
     sparseCheckout: false,
     label: 'thetree-skin-minerva',
     preservePaths: [
@@ -186,9 +211,6 @@ async function prepareMinerva(lock, clean) {
 
   const packageMetadata = readJson(path.join(minervaRoot, 'package.json'));
   if (packageMetadata.name !== 'thetree-skin-minerva') fail(`Unexpected Minerva package name: ${packageMetadata.name}`);
-  if (packageMetadata.version !== lock.minerva.packageVersion) {
-    fail(`Minerva package version mismatch: expected ${lock.minerva.packageVersion}, got ${packageMetadata.version}`);
-  }
   if (!fs.existsSync(path.join(minervaRoot, lock.minerva.entry))) {
     fail(`Locked Minerva integration entry is missing: ${lock.minerva.entry}`);
   }
@@ -202,12 +224,17 @@ async function prepareMinerva(lock, clean) {
   if (vectorRelease !== minervaRelease || vectorRelease !== lock.minerva.mediaWikiRelease) {
     fail(`Vector/Minerva MediaWiki release mismatch: vector=${vectorRelease}, minerva=${minervaRelease}, suite=${lock.minerva.mediaWikiRelease}`);
   }
+  return { commit, packageVersion: packageMetadata.version };
 }
 
 async function main() {
   const options = parseSuiteArgs(process.argv.slice(2));
   const lock = readJson(suiteLockPath);
-  if (lock.schema !== 1 || lock.mode !== 'vector-minerva') fail('Unsupported SUITE-LOCK.json contract.');
+  if (
+    lock.schema !== 2 ||
+    lock.mode !== 'vector-minerva' ||
+    lock.minerva?.resolution !== 'latest-ref-head'
+  ) fail('Unsupported SUITE-LOCK.json contract.');
 
   if (options.clean) removeManagedSuite();
   activateSuiteMode('vector-only', lock);
@@ -221,10 +248,10 @@ async function main() {
     return;
   }
 
-  await prepareMinerva(lock, options.clean);
-  activateSuiteMode('vector-minerva', lock);
+  const minervaState = await prepareMinerva(lock, options.clean);
+  activateSuiteMode('vector-minerva', lock, minervaState);
   run(process.execPath, [path.join(root, 'tools', 'vector-suite-contract-test.mjs')]);
-  console.log(`Vector + Minerva suite bootstrap complete at Minerva ${lock.minerva.commit}.`);
+  console.log(`Vector + Minerva suite bootstrap complete at Minerva ${minervaState.commit}.`);
 }
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);

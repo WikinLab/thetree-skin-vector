@@ -1,12 +1,12 @@
 # thetree-skin-vector
 
-the tree용 MediaWiki Vector 레거시 스킨입니다. 기본 bootstrap은 잠긴 Minerva 저장소도 준비하여, 엔진에서는 하나의 `vector` 스킨으로 등록한 채 데스크톱에는 Vector를, 모바일에는 Minerva를 표시합니다.
+the tree용 MediaWiki Vector 레거시 스킨입니다. 기본 bootstrap은 Minerva 저장소 `main`의 최신 커밋도 준비하여, 엔진에서는 하나의 `vector` 스킨으로 등록한 채 데스크톱에는 Vector를, MobileFrontend 모바일 모드에는 Minerva를 표시합니다.
 
 ## 주요 기능
 
 - MediaWiki Vector 레거시 디자인
 - 데스크톱 Vector와 모바일 Minerva 자동 전환
-- 쿠키나 사용자 설정을 만들지 않는 서버측 기기 판별
+- 쿠키나 사용자 설정을 만들지 않는 서버측 MobileFrontend 모드 판별
 - 밝은 화면과 어두운 화면 전환
 - the tree의 문서 도구, 검색과 사용자 메뉴 지원
 - 로그인 사용자의 문서 주시 및 해제
@@ -25,7 +25,7 @@ the tree용 MediaWiki Vector 레거시 스킨입니다. 기본 bootstrap은 잠�
    - 이름: `vector`
    - URL: `https://github.com/WikinLab/thetree-skin-vector`
 3. **추가**를 누릅니다.
-4. 스킨 설치 디렉터리에서 다음 명령을 실행합니다. Vector 준비가 끝나면 잠긴 Minerva 저장소를 내려받고 Minerva의 bootstrap도 자동으로 이어서 실행합니다.
+4. 스킨 설치 디렉터리에서 다음 명령을 실행합니다. Vector 준비가 끝나면 Minerva 저장소 `main`의 최신 커밋을 확인하고 Minerva의 bootstrap도 자동으로 이어서 실행합니다.
 
    ```bash
    npm run bootstrap
@@ -34,14 +34,14 @@ the tree용 MediaWiki Vector 레거시 스킨입니다. 기본 bootstrap은 잠�
 5. **관리자 → 개발자 설정 → 스킨 → vector**로 돌아가 **빌드**를 누릅니다.
 6. 관리자 설정에서 기본 스킨을 `vector`로 지정하거나, 사용자 설정에서 `vector`를 선택합니다.
 
-기기 선택은 별도 백엔드 플러그인 `thetree-plugin-vector`가 담당합니다. the tree의 백엔드 플러그인 폴더에 저장소 전체를 클론합니다.
+MediaWiki MobileFrontend에 대응하는 별도 백엔드 플러그인 `thetree-plugin-mobilefrontend`가 모바일 모드와 스킨 선택을 담당합니다. the tree의 백엔드 플러그인 폴더에 저장소 전체를 클론합니다.
 
 ```bash
 cd /path/to/thetree/plugins
-git clone https://github.com/WikinLab/thetree-plugin-vector.git thetree-plugin-vector
+git clone https://github.com/WikinLab/thetree-plugin-mobilefrontend.git thetree-plugin-mobilefrontend
 ```
 
-설치 위치는 백엔드의 `plugins/thetree-plugin-vector/`이며 프론트엔드 플러그인은 필요하지 않습니다. 플러그인이 새로 설치되거나 바뀐 뒤에는 the tree 엔진을 다시 시작해야 합니다. 판별은 엔진의 `req.isMobile` 값만 사용하며 쿠키와 별도 사용자 설정을 만들지 않습니다. 독립 `minerva` 스킨의 등록이나 선택 방식에는 영향을 주지 않습니다.
+설치 위치는 백엔드의 `plugins/thetree-plugin-mobilefrontend/`입니다. 플러그인이 새로 설치되거나 바뀐 뒤에는 the tree 엔진을 다시 시작해야 합니다. 판별은 엔진의 `req.isMobile` 값만 사용하며 쿠키와 별도 사용자 설정을 만들지 않습니다. 플러그인이 없는 독립 `minerva` 스킨은 MobileFrontend가 없는 기본 Minerva로 출력되고, 플러그인이 있는 모바일 요청에서만 검색 화면·접이식 문단·모바일 기능 프로필이 활성화됩니다.
 
 Minerva 없이 순수 Vector만 준비하려면 다음 인자를 사용합니다.
 
@@ -68,7 +68,7 @@ npm run bootstrap -- --vector-only
 ## 업데이트
 
 1. **관리자 → 개발자 설정 → 스킨 → vector**에서 **업데이트**를 누릅니다.
-2. 스킨 설치 디렉터리에서 다음 명령을 실행합니다. 기본 동작은 Vector와 잠긴 Minerva를 모두 갱신하고 각각의 bootstrap을 실행합니다.
+2. 스킨 설치 디렉터리에서 다음 명령을 실행합니다. 기본 동작은 Vector를 갱신하고 Minerva `main`의 최신 커밋을 해석한 뒤 각각의 bootstrap을 실행합니다.
 
    ```bash
    npm run bootstrap

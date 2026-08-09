@@ -83,7 +83,10 @@ function listSourceCoverageFiles(contract) {
     if (result.error || result.status !== 0) {
       throw new Error(`Unable to enumerate Git-visible source files: ${result.error?.message || result.stderr || result.stdout}`);
     }
-    return result.stdout.split('\0').filter(Boolean).map(normalizeRelativePath);
+    return result.stdout.split('\0')
+      .filter(Boolean)
+      .map(normalizeRelativePath)
+      .filter((pathname) => fs.existsSync(path.join(root, pathname)));
   }
 
   const coverageRoot = path.join(root, relativeRoot || '.');

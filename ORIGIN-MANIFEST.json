@@ -863,7 +863,7 @@
         "hostDependency": "thetree"
       },
       {
-        "path": "contracts/device-variant-data-contract.json",
+        "path": "contracts/mobilefrontend-data-contract.json",
         "kind": "generation-contract",
         "hostDependency": "thetree"
       },
@@ -1547,15 +1547,16 @@
       "consumer": "components/VectorVariantLayout.vue",
       "activationAttribute": "data-tt-skin-variant"
     },
-    "deviceSuite": {
+    "mobileFrontendSuite": {
       "schema": 1,
       "lock": "SUITE-LOCK.json",
-      "selectionData": "page.data.thetreeVectorDevice",
-      "selectionSchema": "thetree-vector-device/v1",
+      "resolution": "latest-ref-head",
+      "selectionData": "page.data.thetreeMobileFrontend",
+      "selectionSchema": "thetree-mobilefrontend/v1",
       "dispatcher": "layout.vue",
       "desktopEntry": "components/VectorVariantLayout.vue",
       "mobileDependency": "WikinLab/thetree-skin-minerva",
-      "devicePlugin": "external-backend-plugin",
+      "mobileFrontendPlugin": "thetree-plugin-mobilefrontend",
       "delivery": "variant-specific-dynamic-import"
     },
     "moduleGraph": {
