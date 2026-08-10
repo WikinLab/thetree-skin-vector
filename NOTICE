@@ -34,29 +34,19 @@ and freshness checking.
    package artifact is used as a vendor source.
    License: GPL-2.0-or-later (Codex and design tokens); MIT (Codex Icons).
 
-5. thetree-skin-minerva composite variant source
-   Repository: WikinLab/thetree-skin-minerva
-   Ref: main
-   Resolution: latest-ref-head
-   The resolved commit is recorded in .skin-suite/state.json on every normal bootstrap.
-   Bootstrap role: fetched only for the default Vector + Minerva suite build;
-   it is not included in the Vector source archive.
-   License: GPL-2.0-or-later
-
-6. mustache.js
+5. mustache.js
    Version: 4.2.0
    License: MIT
 
-7. parse5
+6. parse5
    Version: 8.0.0
    License: MIT
 
-8. entities (parse5 runtime dependency)
+7. entities (parse5 runtime dependency)
    Version: 6.0.1
    License: BSD-2-Clause
 
 The minimal upstream input list, local source-role inventory, source-port correspondence, materialized runtime
-asset list, and generated output list are recorded in ORIGIN-MANIFEST.json. MediaWiki source inputs remain locked;
-the composite Minerva source is intentionally resolved from the latest main commit during each normal bootstrap.
+asset list, and generated output list are recorded in ORIGIN-MANIFEST.json. MediaWiki source inputs remain locked.
 
 Complete permissive-license notices used by the generated/runtime distribution are in THIRD_PARTY_NOTICES.md.

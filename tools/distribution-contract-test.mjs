@@ -8,7 +8,6 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (relative) => fs.readFileSync(path.join(root, relative), 'utf8');
 const lock = JSON.parse(read('UPSTREAM-LOCK.json'));
-const suiteLock = JSON.parse(read('SUITE-LOCK.json'));
 const packageLock = JSON.parse(read('package-lock.json'));
 const notice = read('NOTICE');
 const thirdParty = read('THIRD_PARTY_NOTICES.md');
@@ -19,14 +18,8 @@ for (const repository of lock.repositories || []) {
   assert.match(notice, new RegExp(repository.license.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
 
-assert.match(notice, new RegExp(suiteLock.minerva.repository.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-assert.match(notice, new RegExp(`Ref:\\s+${suiteLock.minerva.ref}`));
-assert.match(notice, new RegExp(suiteLock.minerva.resolution));
-assert.match(notice, new RegExp(suiteLock.minerva.license.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-
 const declaredRepositories = [...notice.matchAll(/^\s+Repository:\s+(\S+)$/gm)].map((match) => match[1]);
 const lockedRepositories = new Set((lock.repositories || []).map((repository) => repository.repository));
-lockedRepositories.add(suiteLock.minerva.repository);
 for (const repository of declaredRepositories) {
   assert.ok(lockedRepositories.has(repository), `NOTICE declares unlocked repository ${repository}`);
 }
@@ -40,7 +33,7 @@ for (const dependency of Object.keys(packageLock.packages?.['']?.dependencies ||
 const tracked = spawnSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8', windowsHide: true });
 if (tracked.status !== 0) throw new Error(tracked.stderr || 'Unable to enumerate tracked files');
 const forbidden = tracked.stdout.split('\0').filter(Boolean).filter((file) =>
-  file.startsWith('.skin-suite/') || file.startsWith('.upstream/') || file.startsWith('vendor/') || file.startsWith('node_modules/') ||
+  file.startsWith('.upstream/') || file.startsWith('vendor/') || file.startsWith('node_modules/') ||
   file.startsWith('css/vendor/') || file.startsWith('lib/generated/')
 );
 assert.deepEqual(forbidden, [], `Materialized files are tracked: ${forbidden.join(', ')}`);
