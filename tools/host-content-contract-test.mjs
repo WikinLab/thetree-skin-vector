@@ -132,4 +132,10 @@ assert.doesNotMatch(
   /\.thetree-modal-container/
 );
 
+const generatedResourceLoaderCss = fs.readdirSync(path.join(root, 'css', 'vendor', 'resource-loader'))
+  .filter((name) => name.endsWith('.css'))
+  .map((name) => read(`css/vendor/resource-loader/${name}`))
+  .join('\n');
+assert.doesNotMatch(generatedResourceLoaderCss, /:(?:not|where)\(\s+/);
+
 console.log('checked host content, modal ownership, and Vector chrome contract');

@@ -79,10 +79,21 @@ export function unquoteMediaWikiMessageContentVariables(css) {
   return root.toString();
 }
 
+export function normalizeCssSelectors(css) {
+  const root = postcss.parse(css);
+  root.walkRules((rule) => {
+    if (isInsideKeyframes(rule)) return;
+    rule.selector = selectorParser().processSync(rule.selector, { lossless: false });
+  });
+  return root.toString();
+}
+
 export function adaptResourceLoaderOutputCss(css, { assetUrlRewrites = [] } = {}) {
-  return rewriteCssUrls(
-    unquoteMediaWikiMessageContentVariables(css),
-    assetUrlRewrites
+  return normalizeCssSelectors(
+    rewriteCssUrls(
+      unquoteMediaWikiMessageContentVariables(css),
+      assetUrlRewrites
+    )
   );
 }
 
