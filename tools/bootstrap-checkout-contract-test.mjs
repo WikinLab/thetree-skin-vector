@@ -5,7 +5,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
-import { checkoutExactCommit, mapConcurrent } from './bootstrap-upstream.mjs';
+import {
+  checkoutExactCommit,
+  mapConcurrent,
+  shouldPersistTrackedInputs
+} from './bootstrap-upstream.mjs';
 import { readGitBlobs } from './shared/git-blobs.mjs';
 
 const gitExecutable = process.platform === 'win32' ? 'git.exe' : 'git';
@@ -36,6 +40,14 @@ async function testConcurrencyLimit() {
   });
   assert.deepEqual(results, [2, 4, 6, 8, 10]);
   assert.equal(maximum, 2);
+}
+
+function testTrackedInputWritePolicy() {
+  assert.equal(shouldPersistTrackedInputs({}), false);
+  assert.equal(shouldPersistTrackedInputs({ clean: true }), false);
+  assert.equal(shouldPersistTrackedInputs({ verify: true }), false);
+  assert.equal(shouldPersistTrackedInputs({ refresh: true }), true);
+  assert.equal(shouldPersistTrackedInputs({ release: '1.47' }), true);
 }
 
 async function testExactShallowSparseCheckout(temporaryRoot) {
@@ -108,6 +120,7 @@ async function testExactShallowSparseCheckout(temporaryRoot) {
 
 const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vector-bootstrap-checkout-'));
 try {
+  testTrackedInputWritePolicy();
   await testConcurrencyLimit();
   await testExactShallowSparseCheckout(temporaryRoot);
   console.log('Bootstrap checkout contract test passed.');

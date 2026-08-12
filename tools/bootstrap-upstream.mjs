@@ -1068,6 +1068,10 @@ function cleanMaterializedState(manifest) {
   }
 }
 
+function shouldPersistTrackedInputs(options = {}) {
+  return Boolean(options.refresh || options.release);
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   const verify = options.verify || options.refresh || Boolean(options.release);
@@ -1102,15 +1106,18 @@ async function main() {
     if (options.refresh) lock = await resolveReleaseCandidate(originalLock, originalLock.mediaWikiRelease);
     else if (options.release) lock = await resolveReleaseCandidate(originalLock, options.release);
 
+    const persistTrackedInputs = shouldPersistTrackedInputs(options);
     const manifestBeforeResolution = readJson(manifestPath);
     resolvedManifest = updateManifestForLock(manifestBeforeResolution, lock);
-    writeJson(lockPath, lock);
-    writeJson(manifestPath, resolvedManifest);
+    if (persistTrackedInputs) {
+      writeJson(lockPath, lock);
+      writeJson(manifestPath, resolvedManifest);
+    }
 
     await checkoutRepositories(lock, resolvedManifest);
     assertDesignCodexVersionAlignment(lock);
     resolvedManifest = synchronizeRuntimeAssetHashes(resolvedManifest, lock, options.refresh || Boolean(options.release));
-    writeJson(manifestPath, resolvedManifest);
+    if (persistTrackedInputs) writeJson(manifestPath, resolvedManifest);
     buildRepositories(lock);
     await materializeVendor(lock, resolvedManifest);
     cleanRepositoryWorktrees(lock, resolvedManifest);
@@ -1133,4 +1140,4 @@ async function main() {
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) await main();
 
-export { checkoutExactCommit, mapConcurrent };
+export { checkoutExactCommit, mapConcurrent, shouldPersistTrackedInputs };
