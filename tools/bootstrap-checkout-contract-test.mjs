@@ -8,6 +8,7 @@ import { pathToFileURL } from 'node:url';
 import {
   checkoutExactCommit,
   mapConcurrent,
+  requiredSparsePaths,
   shouldPersistTrackedInputs
 } from './bootstrap-upstream.mjs';
 import { readGitBlobs } from './shared/git-blobs.mjs';
@@ -50,6 +51,28 @@ function testTrackedInputWritePolicy() {
   assert.equal(shouldPersistTrackedInputs({ release: '1.47' }), true);
 }
 
+function testLessClosureSparseDiscovery() {
+  const paths = requiredSparsePaths({
+    sourceInventory: {
+      vendorLessClosure: {
+        schema: 3,
+        repositoryDiscoveryPatterns: ['**/*.less', '**/*.css']
+      },
+      vendorFiles: [{
+        path: 'vendor/upstream/resources/module/index.less',
+        repository: 'fixture',
+        upstreamPath: 'resources/module/index.less'
+      }]
+    }
+  }, { name: 'fixture', bootstrapPaths: [] });
+  assert.deepEqual(paths, [
+    '**/*.css',
+    '**/*.less',
+    'resources/module/**',
+    'resources/module/index.less'
+  ]);
+}
+
 async function testExactShallowSparseCheckout(temporaryRoot) {
   const remote = path.join(temporaryRoot, 'remote.git');
   const source = path.join(temporaryRoot, 'source');
@@ -64,10 +87,13 @@ async function testExactShallowSparseCheckout(temporaryRoot) {
   for (let index = 0; index < 6; index += 1) {
     fs.mkdirSync(path.join(source, 'kept'), { recursive: true });
     fs.mkdirSync(path.join(source, 'kept', 'nested'), { recursive: true });
+    fs.mkdirSync(path.join(source, 'shared'), { recursive: true });
     fs.mkdirSync(path.join(source, 'discarded'), { recursive: true });
     fs.writeFileSync(path.join(source, 'kept', 'value.txt'), `${index}\n`);
     fs.writeFileSync(path.join(source, 'kept', 'other.txt'), `other-${index}\n`);
     fs.writeFileSync(path.join(source, 'kept', 'nested', 'import.less'), `nested-${index}\n`);
+    fs.writeFileSync(path.join(source, 'shared', 'outside.less'), `outside-${index}\n`);
+    fs.writeFileSync(path.join(source, 'shared', 'not-style.txt'), `not-style-${index}\n`);
     fs.writeFileSync(path.join(source, 'discarded', 'value.txt'), `${index}\n`);
     git(source, ['add', '.']);
     git(source, ['commit', '--quiet', '-m', `commit ${index}`]);
@@ -80,7 +106,7 @@ async function testExactShallowSparseCheckout(temporaryRoot) {
     checkout,
     url,
     commit,
-    sparsePaths: ['kept/**'],
+    sparsePaths: ['kept/**', '**/*.less', '**/*.css'],
     label: 'contract-fixture'
   });
 
@@ -90,6 +116,8 @@ async function testExactShallowSparseCheckout(temporaryRoot) {
   assert.equal(git(checkout, ['for-each-ref', '--format=%(refname)', 'refs/remotes']), '');
   assert.equal(fs.readFileSync(path.join(checkout, 'kept', 'value.txt'), 'utf8'), '5\n');
   assert.equal(fs.readFileSync(path.join(checkout, 'kept', 'nested', 'import.less'), 'utf8'), 'nested-5\n');
+  assert.equal(fs.readFileSync(path.join(checkout, 'shared', 'outside.less'), 'utf8'), 'outside-5\n');
+  assert.equal(fs.existsSync(path.join(checkout, 'shared', 'not-style.txt')), false);
   assert.equal(fs.existsSync(path.join(checkout, 'discarded')), false);
   const specs = [`${commit}:kept/value.txt`, `${commit}:kept/other.txt`];
   const blobs = readGitBlobs(checkout, specs);
@@ -112,7 +140,7 @@ async function testExactShallowSparseCheckout(temporaryRoot) {
     checkout,
     url,
     commit,
-    sparsePaths: ['kept/**'],
+    sparsePaths: ['kept/**', '**/*.less', '**/*.css'],
     label: 'offline-contract-fixture'
   });
   assert.equal(git(checkout, ['rev-parse', 'HEAD']), commit);
@@ -121,6 +149,7 @@ async function testExactShallowSparseCheckout(temporaryRoot) {
 const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vector-bootstrap-checkout-'));
 try {
   testTrackedInputWritePolicy();
+  testLessClosureSparseDiscovery();
   await testConcurrencyLimit();
   await testExactShallowSparseCheckout(temporaryRoot);
   console.log('Bootstrap checkout contract test passed.');

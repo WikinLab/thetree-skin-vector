@@ -226,15 +226,20 @@ function writeBuffer(destination, buffer) {
 function requiredSparsePaths(manifest, repository) {
   const paths = new Set(repository.bootstrapPaths || []);
   const lessClosure = manifest.sourceInventory?.vendorLessClosure;
+  let hasLessSeed = false;
   for (const inventoryName of ['vendorFiles', 'materializedRuntimeAssets']) {
     for (const entry of manifest.sourceInventory?.[inventoryName] || []) {
       if (entry.repository !== repository.name || !entry.upstreamPath) continue;
       paths.add(entry.upstreamPath);
       if (Number(lessClosure?.schema) >= 1 && entry.path?.endsWith('.less')) {
+        hasLessSeed = true;
         const directory = path.posix.dirname(entry.upstreamPath.replaceAll('\\', '/'));
         if (directory !== '.') paths.add(`${directory}/**`);
       }
     }
+  }
+  if (hasLessSeed) {
+    for (const pattern of lessClosure?.repositoryDiscoveryPatterns || []) paths.add(pattern);
   }
   if (repository.licenseFile && !repository.licenseFile.includes(':')) paths.add(repository.licenseFile);
   return [...paths].sort();
@@ -778,8 +783,16 @@ function assertVendorLessClosureContract(manifest) {
   const contract = manifest.sourceInventory?.vendorLessClosure;
   if (
     !contract ||
-    contract.schema !== 2 ||
+    contract.schema !== 3 ||
     contract.seeds !== 'declared-less-files' ||
+    !Array.isArray(contract.repositoryDiscoveryPatterns) ||
+    !contract.repositoryDiscoveryPatterns.length ||
+    contract.repositoryDiscoveryPatterns.some((pattern) => (
+      typeof pattern !== 'string' ||
+      !pattern ||
+      path.isAbsolute(pattern) ||
+      pattern.split(/[\\/]/).includes('..')
+    )) ||
     contract.parser !== 'less-ast' ||
     contract.resolution !== 'shared-resource-loader-resolver' ||
     contract.compilation !== 'less-import-manager'
@@ -1140,4 +1153,9 @@ async function main() {
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) await main();
 
-export { checkoutExactCommit, mapConcurrent, shouldPersistTrackedInputs };
+export {
+  checkoutExactCommit,
+  mapConcurrent,
+  requiredSparsePaths,
+  shouldPersistTrackedInputs
+};

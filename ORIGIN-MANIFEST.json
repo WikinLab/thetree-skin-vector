@@ -114,8 +114,12 @@
       ]
     },
     "vendorLessClosure": {
-      "schema": 2,
+      "schema": 3,
       "seeds": "declared-less-files",
+      "repositoryDiscoveryPatterns": [
+        "**/*.less",
+        "**/*.css"
+      ],
       "parser": "less-ast",
       "resolution": "shared-resource-loader-resolver",
       "compilation": "less-import-manager",
