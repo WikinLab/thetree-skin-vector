@@ -304,6 +304,9 @@ async function checkoutExactCommit(options) {
   // Upstream source bytes must not depend on the caller's global Windows Git settings.
   await runAsync(gitExecutable, ['-C', checkout, 'config', 'core.autocrlf', 'false'], { capture: true });
   await runAsync(gitExecutable, ['-C', checkout, 'config', 'core.eol', 'lf'], { capture: true });
+  // Composer nesting plus upstream filenames can exceed the legacy Win32 MAX_PATH limit.
+  // Keep managed checkouts independent of the machine's global Git configuration.
+  await runAsync(gitExecutable, ['-C', checkout, 'config', 'core.longpaths', 'true'], { capture: true });
   await runAsync(gitExecutable, ['-C', checkout, 'config', 'remote.origin.promisor', 'true'], { capture: true });
   await runAsync(gitExecutable, ['-C', checkout, 'config', 'remote.origin.partialclonefilter', 'blob:none'], { capture: true });
 

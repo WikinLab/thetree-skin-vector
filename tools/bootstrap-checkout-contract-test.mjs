@@ -83,6 +83,16 @@ async function testExactShallowSparseCheckout(temporaryRoot) {
   git(source, ['init', '--quiet', '--initial-branch=main']);
   git(source, ['config', 'user.name', 'Bootstrap Contract']);
   git(source, ['config', 'user.email', 'bootstrap-contract@example.invalid']);
+  git(source, ['config', 'core.longpaths', 'true']);
+
+  const longRelativePath = path.join(
+    'shared',
+    `long-${'a'.repeat(70)}`,
+    `long-${'b'.repeat(70)}`,
+    `long-${'c'.repeat(70)}`,
+    'mw.rcfilters.ui.ChangesListWrapperWidget.highlightCircles.seenunseen.less'
+  );
+  assert.ok(path.resolve(checkout, longRelativePath).length > 260);
 
   for (let index = 0; index < 6; index += 1) {
     fs.mkdirSync(path.join(source, 'kept'), { recursive: true });
@@ -93,6 +103,8 @@ async function testExactShallowSparseCheckout(temporaryRoot) {
     fs.writeFileSync(path.join(source, 'kept', 'other.txt'), `other-${index}\n`);
     fs.writeFileSync(path.join(source, 'kept', 'nested', 'import.less'), `nested-${index}\n`);
     fs.writeFileSync(path.join(source, 'shared', 'outside.less'), `outside-${index}\n`);
+    fs.mkdirSync(path.dirname(path.join(source, longRelativePath)), { recursive: true });
+    fs.writeFileSync(path.join(source, longRelativePath), `long-${index}\n`);
     fs.writeFileSync(path.join(source, 'shared', 'not-style.txt'), `not-style-${index}\n`);
     fs.writeFileSync(path.join(source, 'discarded', 'value.txt'), `${index}\n`);
     git(source, ['add', '.']);
@@ -113,10 +125,12 @@ async function testExactShallowSparseCheckout(temporaryRoot) {
   assert.equal(git(checkout, ['rev-parse', 'HEAD']), commit);
   assert.equal(git(checkout, ['rev-list', '--count', 'HEAD']), '1');
   assert.equal(git(checkout, ['rev-parse', '--is-shallow-repository']), 'true');
+  assert.equal(git(checkout, ['config', '--get', 'core.longpaths']), 'true');
   assert.equal(git(checkout, ['for-each-ref', '--format=%(refname)', 'refs/remotes']), '');
   assert.equal(fs.readFileSync(path.join(checkout, 'kept', 'value.txt'), 'utf8'), '5\n');
   assert.equal(fs.readFileSync(path.join(checkout, 'kept', 'nested', 'import.less'), 'utf8'), 'nested-5\n');
   assert.equal(fs.readFileSync(path.join(checkout, 'shared', 'outside.less'), 'utf8'), 'outside-5\n');
+  assert.equal(fs.readFileSync(path.join(checkout, longRelativePath), 'utf8'), 'long-5\n');
   assert.equal(fs.existsSync(path.join(checkout, 'shared', 'not-style.txt')), false);
   assert.equal(fs.existsSync(path.join(checkout, 'discarded')), false);
   const specs = [`${commit}:kept/value.txt`, `${commit}:kept/other.txt`];
