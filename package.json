@@ -12,6 +12,7 @@
   "scripts": {
     "preflight": "node tools/generate-origin.mjs --preflight",
     "bootstrap": "node tools/bootstrap-upstream.mjs",
+    "bootstrap:verify": "node tools/bootstrap-upstream.mjs --verify",
     "generate": "node tools/generate-origin.mjs",
     "generate:check": "node tools/generate-origin.mjs --check",
     "check:mustache": "node tools/mustache-origin-contract-test.mjs",

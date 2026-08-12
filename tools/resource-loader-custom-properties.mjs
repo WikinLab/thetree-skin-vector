@@ -131,12 +131,15 @@ function deriveStaticDomClassContainment(root, compositions = []) {
 
 function unresolvedCustomPropertyNames(root, contract, cssSources) {
   const hostPrefixes = contract.customPropertyClosure?.hostProvidedPrefixes || [];
+  const runtimePatterns = (contract.customPropertyClosure?.runtimeProvidedNamePatterns || [])
+    .map((pattern) => new RegExp(pattern));
   const domClassDescendants = deriveStaticDomClassContainment(
     root,
     contract.customPropertyClosure?.domCompositions || []
   );
   return findUnresolvedCssCustomPropertyReferences(cssSources, { domClassDescendants })
-    .filter((name) => !hostPrefixes.some((prefix) => name.startsWith(prefix)));
+    .filter((name) => !hostPrefixes.some((prefix) => name.startsWith(prefix)))
+    .filter((name) => !runtimePatterns.some((pattern) => pattern.test(name)));
 }
 
 function combinedCustomPropertyClosureRequirements(root, contract, generatedCss) {

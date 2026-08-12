@@ -5,30 +5,30 @@ This package is licensed under GPL-2.0-or-later. See LICENSE.
 
 The distribution archive does not bundle upstream checkouts, unmodified upstream runtime asset copies,
 or generated outputs. It does include the project's modified source ports. `npm run bootstrap` retrieves
-the exact locked sources, materializes the required runtime assets, and performs deterministic generation
-and freshness checking.
+the exact locked sources, materializes the required runtime assets, and performs deterministic generation.
+Full freshness and contract checks are available through `npm run bootstrap:verify`.
 
 1. MediaWiki Vector
    Repository: wikimedia/mediawiki-skins-Vector
    Ref: REL1_46
-   Commit: ccdb96450f920bd927e958c43f4f3be0458ce9f7
+   Commit: 3ea4696bcfb97ddaa06b52e5cf423ce48b18cb91
    License: GPL-2.0-or-later
 
 2. MediaWiki core
    Repository: wikimedia/mediawiki
-   Ref: REL1_46
-   Commit: 94b1bc0df0d57a470404266bed914f8584ead52f
+   Ref: 1.46.0
+   Commit: 63da3569472b40c3be833d392b7ce1843a5cbf62
    License: GPL-2.0-or-later
 
 3. MediaWiki DarkMode
    Repository: wikimedia/mediawiki-extensions-DarkMode
    Ref: REL1_46
-   Commit: ccccb2f21445c31ceb4c4f8226da765d5de709fb
+   Commit: ce5b7870a90fb7aeb25778b82bc2cc90e7e4f1ed
    License: MIT
 
 4. Wikimedia Codex
    Repository: wikimedia/design-codex
-   Tag/commit: v2.3.1 / 451588b3ed4e610a50b9b656ef528898e049bb2f
+   Tag/commit: v2.5.1 / a45e090a15981638db499e2cf9ece119693913a2
    Source build: Codex, design tokens, public LESS mixins, and icon-path
    variables are generated from this exact Git checkout; no Codex npm
    package artifact is used as a vendor source.

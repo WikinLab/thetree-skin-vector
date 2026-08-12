@@ -49,6 +49,10 @@ Vector와 Minerva를 데스크톱·모바일로 조합하려면 `thetree-skin-co
 
 생성 파일이나 원본 파일 오류가 있으면 `npm run bootstrap -- --clean`으로 다시 준비합니다.
 
+기본 `bootstrap`은 최종 사용자가 필요한 잠금 확인·원본 물질화·결과 생성을 수행하고, 캐시가 최신이면 전체 테스트를 반복하지 않습니다. 개발·CI에서 전체 생성 신선도와 계약까지 검사하려면 `npm run bootstrap:verify` 또는 `npm run check`를 사용합니다.
+
+`COMPOSABLE-SKIN.json`은 Composer가 선택적으로 읽는 metadata일 뿐 Vector 런타임이나 단독 빌드에서는 import되지 않습니다. 따라서 이 파일의 존재는 단독 설치 결과에 영향을 주지 않습니다.
+
 ## 버전과 라이선스
 
 현재 버전은 `package.json`에서 확인할 수 있으며 릴리스 태그는 `vX.Y.Z` 형식입니다.

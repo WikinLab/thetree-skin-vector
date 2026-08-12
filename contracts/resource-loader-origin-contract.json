@@ -232,6 +232,9 @@
       "--mw-msg-",
       "--tt-"
     ],
+    "runtimeProvidedNamePatterns": [
+      "^--[0-9a-f]{8}$"
+    ],
     "domCompositions": [],
     "localPublishedLessTokenEntrypoints": [
       "vendor/wikimedia-codex/packages/codex-design-tokens/dist/theme-wikimedia-ui.less"

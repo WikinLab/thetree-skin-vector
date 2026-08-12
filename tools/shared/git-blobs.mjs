@@ -14,6 +14,7 @@ export function readGitBlobs(checkout, objectSpecs) {
   if (specs.length === 0) return new Map();
 
   const result = spawnSync(gitExecutable, ['-C', checkout, 'cat-file', '--batch'], {
+    env: { ...process.env, GIT_NO_LAZY_FETCH: '1' },
     input: `${specs.join('\n')}\n`,
     stdio: ['pipe', 'pipe', 'pipe'],
     encoding: null,

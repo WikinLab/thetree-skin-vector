@@ -43,6 +43,20 @@ export function resolveResourceLoaderOriginContract(root, contract) {
   ) {
     throw new Error(`ResourceLoader authoritative LESS entrypoints disagree with ${variantPath}.`);
   }
+  const runtimeProvidedNamePatterns = contract.customPropertyClosure?.runtimeProvidedNamePatterns || [];
+  if (!Array.isArray(runtimeProvidedNamePatterns)) {
+    throw new Error('ResourceLoader runtime-provided custom property patterns must be an array.');
+  }
+  for (const pattern of runtimeProvidedNamePatterns) {
+    if (typeof pattern !== 'string' || !pattern) {
+      throw new Error('ResourceLoader runtime-provided custom property patterns must be non-empty strings.');
+    }
+    try {
+      new RegExp(pattern);
+    } catch {
+      throw new Error(`Invalid ResourceLoader runtime-provided custom property pattern: ${pattern}`);
+    }
+  }
 
   return {
     ...contract,

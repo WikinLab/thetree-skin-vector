@@ -1,15 +1,23 @@
 {
-  "schema": 6,
-  "snapshotDate": "2026-07-14",
+  "schema": 7,
+  "snapshotDate": "2026-08-13",
   "mediaWikiRelease": "1.46",
   "releaseLine": "REL1_46",
-  "policy": "The default bootstrap reproduces the exact 2026-07-14 MediaWiki 1.46 distribution-line snapshot. Every upstream input is obtained from an exact Git commit. MediaWiki core, Vector, and DarkMode use exact REL1_46 commits; Codex styles, design tokens, mixins, and icon-path variables are built from the exact matching design-codex Git tag. Upstream movement occurs only through an explicit bootstrap refresh or release option. The final stylesheet cascade is generated from source-derived MediaWiki queue events and the locked ClientHtml::makeLoad module sorting/source-group partition algorithm rather than a hand-authored CSS import list.",
+  "officialDistribution": {
+    "version": "1.46.0",
+    "releaseDate": "2026-06-30",
+    "observedDate": "2026-08-13",
+    "downloadUrl": "https://releases.wikimedia.org/mediawiki/1.46/mediawiki-1.46.0.tar.gz",
+    "sha512": "7dd1cb2aaf27c18f35f4fb713244d8a129813c3c674be2d312fe0d1bcba8842abca1b5605952d8a50a67f4c026e8ea8af4635a24f40572e7492d9aa0fd7167e2",
+    "coreTagObject": "5faa6fba8279f8763f90405df63e5ba31d34e0c7"
+  },
+  "policy": "The default bootstrap reproduces the exact MediaWiki 1.46.0 full distribution offered by the official MediaWiki download page on 2026-08-13. Core is locked to the 1.46.0 Git tag; bundled Vector source is locked to the Git commit matching the distributed non-localization files byte-for-byte; Codex is locked to the exact 2.5.1 version declared by the tagged core. DarkMode is not bundled and is locked to the last compatible REL1_46 commit preceding the distribution release. Upstream movement occurs only through an explicit bootstrap refresh or release option.",
   "repositories": [
     {
       "name": "mediawiki-skins-Vector",
       "repository": "wikimedia/mediawiki-skins-Vector",
       "ref": "REL1_46",
-      "commit": "ccdb96450f920bd927e958c43f4f3be0458ce9f7",
+      "commit": "3ea4696bcfb97ddaa06b52e5cf423ce48b18cb91",
       "license": "GPL-2.0-or-later",
       "licenseFile": "COPYING",
       "scope": "Vector legacy templates, PHP data contracts, LESS, and JavaScript behavior sources",
@@ -21,17 +29,20 @@
     {
       "name": "mediawiki",
       "repository": "wikimedia/mediawiki",
-      "ref": "REL1_46",
-      "commit": "94b1bc0df0d57a470404266bed914f8584ead52f",
+      "ref": "1.46.0",
+      "commit": "63da3569472b40c3be833d392b7ce1843a5cbf62",
       "license": "GPL-2.0-or-later",
       "licenseFile": "COPYING",
-      "scope": "MediaWiki core skinning LESS, ResourceLoader SkinModule and core module registry sources, default variables, and core Codex module CSS sources"
+      "scope": "MediaWiki core skinning LESS, ResourceLoader SkinModule and core module registry sources, default variables, and core Codex module CSS sources",
+      "bootstrapPaths": [
+        "package.json"
+      ]
     },
     {
       "name": "mediawiki-extensions-DarkMode",
       "repository": "wikimedia/mediawiki-extensions-DarkMode",
       "ref": "REL1_46",
-      "commit": "ccccb2f21445c31ceb4c4f8226da765d5de709fb",
+      "commit": "ce5b7870a90fb7aeb25778b82bc2cc90e7e4f1ed",
       "license": "MIT",
       "licenseFile": "extension.json:license-name",
       "scope": "DarkMode extension hook, message, client behavior, and ext.DarkMode.styles ResourceLoader sources",
@@ -44,8 +55,8 @@
     {
       "name": "design-codex",
       "repository": "wikimedia/design-codex",
-      "ref": "v2.3.1",
-      "commit": "451588b3ed4e610a50b9b656ef528898e049bb2f",
+      "ref": "v2.5.1",
+      "commit": "a45e090a15981638db499e2cf9ece119693913a2",
       "license": "GPL-2.0-or-later",
       "licenseFile": "LICENSE",
       "scope": "Complete locked Codex workspace source used by the upstream build, plus selected generated CSS, token, mixin, icon-path, and SVG vendor outputs",
@@ -91,15 +102,18 @@
         "outputs": [
           "packages/codex-design-tokens/dist/theme-wikimedia-ui-root.css",
           "packages/codex-design-tokens/dist/theme-wikimedia-ui.less",
+          "packages/codex-design-tokens/dist/theme-wikimedia-ui-mixin-dark.less",
+          "packages/codex-design-tokens/dist/theme-wikimedia-ui-mixin-light.less",
           "packages/codex-icons/dist/codex-icon-paths.less",
+          "packages/codex-icons/dist/codex-icons.js",
           "packages/codex/dist/codex.style.css"
         ],
         "toolchain": {
-          "id": "design-codex-2.3.1",
-          "source": "contracts/upstream-build-toolchains/design-codex-2.3.1",
+          "id": "design-codex-2.5.1",
+          "source": "contracts/upstream-build-toolchains/design-codex-2.5.1",
           "packageFile": "package.json",
           "lockFile": "package-lock.json",
-          "lockSha256": "93d2577f1672fe51624595906905aa4cde41358cbed0c9a02bfba60fbe2f2dbf",
+          "lockSha256": "577145c2084f0e9fe33d778cfa3cde6cf2a394933f52666a1c99d46075b99b72",
           "install": {
             "command": "npm",
             "args": [
@@ -137,6 +151,7 @@
     "checkoutRoot": ".upstream",
     "vendorRoot": "vendor",
     "defaultMode": "locked-snapshot",
+    "verificationMode": "npm run bootstrap:verify",
     "refreshMode": "npm run bootstrap -- --refresh",
     "releaseMode": "npm run bootstrap -- --release 1.47",
     "transaction": "A refresh or release candidate replaces the lock and manifest only when clone, repository-local upstream builds, staged materialization, generation, and contract checks all succeed. Existing materialized state is retained on failure.",
@@ -149,6 +164,7 @@
     "--refresh resolves the newest heads of the currently locked release line and is explicit.",
     "--release X.Y resolves RELX_Y explicitly; it does not silently detect or adopt a new stable release.",
     "Default bootstrap reuses fingerprint-matched dependencies and upstream build outputs, stages vendor materialization before atomic replacement, and keeps the last usable state on failure. --clean requests a cold rebuild.",
+    "Default bootstrap performs deterministic materialization and generation only. Development, CI, refresh, and release workflows run the full contract suite through --verify.",
     "Repositories without upstream build steps use sparse checkout from the declared source inventory. Build-bearing repositories may set sparseCheckout to false so the exact upstream build receives its complete source workspace instead of a guessed file subset.",
     "The design-codex repository is checked out completely at its locked commit, linked to the pinned project-owned build toolchain, and built through its own workspace scripts.",
     "The DarkMode extension is locked to the same MediaWiki release line. Its ResourceLoader style module is generated from upstream LESS; the thetree theme state is only adapted to the extension-owned html class contract.",

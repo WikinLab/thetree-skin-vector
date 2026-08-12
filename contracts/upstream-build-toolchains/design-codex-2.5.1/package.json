@@ -1,7 +1,7 @@
 {
   "name": "thetree-skin-vector-design-codex-build-toolchain",
   "private": true,
-  "version": "2.3.1",
+  "version": "2.5.1",
   "dependencies": {
     "@floating-ui/vue": "1.0.6",
     "@rollup/plugin-typescript": "12.1.2",
@@ -14,8 +14,8 @@
     "postcss-rtlcss": "5.7.1",
     "rtlcss": "4.3.0",
     "style-dictionary": "4.3.3",
-    "svgo": "4.0.0",
-    "typescript": "5.7.2",
+    "svgo": "4.0.1",
+    "typescript": "5.9.3",
     "vite": "7.0.4",
     "vue": "3.5.17"
   }

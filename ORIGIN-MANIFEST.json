@@ -33,7 +33,7 @@
   },
   "distribution": {
     "mode": "bootstrap-source-only",
-    "snapshotDate": "2026-07-14",
+    "snapshotDate": "2026-08-13",
     "releaseLine": "REL1_46",
     "vendorIncluded": false,
     "generatedOutputsIncluded": false,
@@ -471,12 +471,6 @@
         "upstreamPath": "includes/templates/Indicators.mustache"
       },
       {
-        "path": "vendor/mediawiki-vector-legacy/includes/templates/LegacyFooter.mustache",
-        "status": "mirrored",
-        "repository": "mediawiki-skins-Vector",
-        "upstreamPath": "includes/templates/LegacyFooter.mustache"
-      },
-      {
         "path": "vendor/mediawiki-vector-legacy/includes/templates/LegacyMenu.mustache",
         "status": "mirrored",
         "repository": "mediawiki-skins-Vector",
@@ -877,12 +871,12 @@
         "hostDependency": "none"
       },
       {
-        "path": "contracts/upstream-build-toolchains/design-codex-2.3.1/package-lock.json",
+        "path": "contracts/upstream-build-toolchains/design-codex-2.5.1/package-lock.json",
         "kind": "upstream-build-contract",
         "hostDependency": "none"
       },
       {
-        "path": "contracts/upstream-build-toolchains/design-codex-2.3.1/package.json",
+        "path": "contracts/upstream-build-toolchains/design-codex-2.5.1/package.json",
         "kind": "upstream-build-contract",
         "hostDependency": "none"
       },
@@ -1234,12 +1228,6 @@
         "partialDependencies": []
       },
       {
-        "path": "components/LegacyFooter.vue",
-        "originNode": "mustache-components",
-        "input": "vendor/mediawiki-vector-legacy/includes/templates/LegacyFooter.mustache",
-        "partialDependencies": []
-      },
-      {
         "path": "components/LegacyMenu.vue",
         "originNode": "mustache-components",
         "input": "vendor/mediawiki-vector-legacy/includes/templates/LegacyMenu.mustache",
@@ -1290,7 +1278,6 @@
         "originNode": "mustache-components",
         "input": "vendor/mediawiki-vector-legacy/includes/templates/MenuListItem.mustache",
         "partialDependencies": [
-          "vendor/mediawiki-vector-legacy/includes/templates/Button.mustache",
           "vendor/mediawiki-vector-legacy/includes/templates/Link.mustache"
         ]
       },
@@ -1300,8 +1287,8 @@
         "input": "vendor/mediawiki-vector-legacy/includes/templates/skin-legacy.mustache",
         "partialDependencies": [
           "vendor/mediawiki-vector-legacy/includes/templates/BottomDock.mustache",
+          "vendor/mediawiki-vector-legacy/includes/templates/Footer.mustache",
           "vendor/mediawiki-vector-legacy/includes/templates/Indicators.mustache",
-          "vendor/mediawiki-vector-legacy/includes/templates/LegacyFooter.mustache",
           "vendor/mediawiki-vector-legacy/includes/templates/LegacyMenu.mustache",
           "vendor/mediawiki-vector-legacy/includes/templates/LegacySearchBox.mustache",
           "vendor/mediawiki-vector-legacy/includes/templates/LegacySidebar.mustache",
