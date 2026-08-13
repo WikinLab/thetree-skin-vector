@@ -18,6 +18,7 @@ import {
   isSettingsToggleTarget,
   settingsToggleAttributes
 } from '../lib/adapters/thetree-settings.js';
+import { makeLegacyFooterTemplateData } from '../lib/legacyFooterData.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), 'utf8');
@@ -87,6 +88,19 @@ assert.deepEqual(
 assert.deepEqual(normalizeTheTreeSuggestions({ 0: '가', 1: '나' }, 1), ['가']);
 assert.equal(SEARCH_SUGGEST_CONTAINER_ID, 'tt-vector-search-suggestions');
 
+const footerInfo = { id: 'footer-info', 'array-items': [] };
+const footerPlaces = { id: 'footer-places', 'array-items': [] };
+const footerIcons = { id: 'footer-icons', 'array-items': [] };
+assert.deepEqual(makeLegacyFooterTemplateData({
+  info: footerInfo,
+  places: footerPlaces,
+  icons: footerIcons
+}), {
+  'data-info': footerInfo,
+  'data-places': footerPlaces,
+  'data-icons': footerIcons
+});
+
 const adapterSource = read('lib/legacyTheTreeAdapter.js');
 assert.match(adapterSource, /makeUserDocumentTarget\(context, userName, accountType = 1\)/);
 assert.match(adapterSource, /accountType === 1 \? '사용자' : '아이피사용자'/);
@@ -96,6 +110,10 @@ assert.match(adapterSource, /pageData\.discuss_progress/);
 assert.match(adapterSource, /getRelevantUserUuid/);
 assert.match(adapterSource, /settingsToggleAttributes\(\)/);
 assert.match(adapterSource, /context\.session\?\.notifications/);
+
+const skinDataSource = read('lib/legacySkinData.js');
+assert.match(skinDataSource, /'data-footer': footerData/);
+assert.doesNotMatch(skinDataSource, /'data-footer-(?:info|places|icons)'/);
 
 const skinSource = read('components/SkinLegacy.vue');
 assert.match(skinSource, /this\.\$vfm\.show\(\{ component: VectorSettingModal \}\)/);
